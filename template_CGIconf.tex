@@ -7,6 +7,7 @@
 \smartqed  % flush right qed marks, e.g. at end of proof
 \usepackage{graphicx}
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{tabularx}
 \journalname{CGI2013} % The correct name will be entered by the editor
 \begin{document}
 
@@ -128,14 +129,14 @@ r_i^z=J_i^z-D^z(J_i^x,J_i^y)
 r_i^{x,y}=max(\| \pm J_i^{x,y} \mp D^{x,y}(J_i^{y,x},J_i^z)\|)
 \label{eqn:x_y_sphere_radius}
 \end{equation}
-\item 3. Take the minimum of three-axis differences, as there should be no intersection with the body contour and the shape must be a sphere.
+\item Take the minimum of three-axis differences, as there should be no intersection with the body contour and the shape must be a sphere.
 \begin{equation}
 r_i=min(r_i^{x,y,z})
 \label{eqn:minimum_sphere-radius}
 \end{equation}
 \end{enumerate}
 
-The process is given in psedocode form in Algorithm \ref{algo:sphere_fitting}.
+The process psedocode is given in Algorithm \ref{algo:sphere_fitting}.
 
 \begin{algorithm}
 \dontprintsemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
@@ -177,6 +178,94 @@ $r_m=min(r_z,r_x^-,r_x^+,r_y^-,r_y^+)$
 
 \subsubsection{Height and Width Parameters}
 
+The width and height of the subject is important for determining the proper actual size for the cloth. However, a straightforward estimation of body height and shoulderwidth is prone to errors due to the noise and quality of the incoming depth map. In order to minimize the error factor, a larger of the subject's body are measured, to be used in width-height estimation later. This set of dimensions are listed in Table \ref{tbl:human_body_proportions}. 
+For the sake of relative representation, head width and head height are taken as unit width and height respectively. The Measure Source column in the table denotes the source for the estimation of respective parameter:
+\begin{itemize} 
+\item
+Joint location represents that the measurement will take the input subject joint locations as the reference.
+\item 
+Depth map represents the measurement will instead perform measurements based on the pixel distribution in the optimized subject depth map. 
+\end{itemize}
+They are often used together for better performance. Please note that some of these dimensions are not standard enough to be used as relative references, i.e. hip width, these parameters do not effect others in estimation process, and vica versa.
+
+\begin{table}
+
+\begin{tabularx}{\columnwidth}{ | p{0.2\columnwidth} |  p{0.2\columnwidth} | p{0.2\columnwidth} |  p{0.2\columnwidth} |}
+\hline
+\textbf{Distance} & \textbf{Width} & \textbf{Height} & \textbf{Measure Source} \\ \hline
+Head & 1w (1) & 1h (2) & Depth Map+Joint Location \\ \hline
+Body Height & - & 7 (3) & Depth Map \\ \hline
+Hip Height & - & 4 (4) & Joint Location \\ \hline
+Elbow-Fingertip & - & 2 (5) & Depth Map+Joint Location \\ \hline
+Wrist to Fingertip & - & 1 (6) & Depth Map+Joint Location \\ \hline
+Shoulder Width & 3 (7) & - & Depth Map+Joint Location \\ \hline
+Hip Width & - (8) & - & Depth Map \\ \hline
+Torso Height & - & - (9) & Joint Location \\ 
+\hline
+\end{tabularx}
+\caption{Human Body Proportions \cite{Willis2012}. Numbers in parenthesis represent the lines on Figure \ref{fig:body_proportions}.}
+\label{tbl:human_body_proportions}
+\end{table}
+
+
+\begin{figure}
+	\begin{center}
+			\includegraphics[width=0.9\columnwidth]{./figures/body_proportions.png}
+	\end{center}
+	\caption{Proportions on the Body}
+	\label{fig:body_proportions}
+\end{figure}
+
+Measurements will be performed in real-world space rather than projective space as a real size estimation is crucial for determining the appropriate cloth size. Although the latter would be sufficient enough for simulation purposes only, when there is no concern of real-life apparel fitting. After the acquisiton of the required scaling parameters for the subject, whole cloth and avatar should be scaled in three dimensions uniformly, in contrast with a segmented scaling. This decision is based on the scope of this work, as it is a standard-sized apparel fitting application, without extensive customization. Following the measurements, the body width and shoulder height are estimated as following:
+
+\begin{enumerate}
+\item Take the primary dimension (either body height or shoulder width) $P_i^0$. This process will be repeated for width (W) and height (H).
+\item Using the remaining measurements in the set,  estimate the primary dimension $P_i$ as $P_i^j$ using proportion $R_i^j$ from \ref{tbl:human_body_proportions}.
+\begin{equation}
+W,H_i^j=W,H_j \times R_i^j
+\label{eqn:proportion_estimation}
+\end{equation}
+\item Find the optimized primary dimension as the mean of all estimations:
+\begin{equation}
+W,H_i=1/(n+1) \times \sum\limits_{j=0}^n W,H_i^j
+\label{eqn:optimized_parameter}
+\end{equation}
+\end{enumerate}
+
+\begin{algorithm}
+\dontprintsemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
+
+$t_{proportion}=import(Table \ref{tbl:human_body_proportions})$ \;
+$t_{primary}=import(Table \ref{tbl:primary_proportions})$ \;
+$ct=cloth_{type}$\;
+$width_{main}=t_{proportion}.width(ct)$\;
+$width_{sum}=0$\;
+$count_{effector}=0$\;
+\ForEach{width \bf{in} $t_{proportion}$ }{
+$w_i=measure(p_i)$\;
+$w_i^j=w \times t_{proportion}.ratio(p_i,parameter_{main})$\;
+$width_{sum}=width_{sum}+w_i^j $\;
+$count_effector++ $\;
+}
+$width_{weighted}=width_{sum}/count_effector$
+$x_s=width_{weighted}/width_{cloth}$\;
+
+$height_{main}=t_{proportion}.height(ct)$\;
+$height_{sum}=0$\;
+$count_{effector}=0$\;
+\ForEach{height \bf{in} $t_{proportion}$ }{
+$h_i=measure(p_i)$\;
+$h_i^j=h \times t_{proportion}.ratio(p_i,parameter_{main})$\;
+$height_{sum}=height_{sum}+h_i^j $\;
+$count_effector++ $\;
+}
+$height_{weighted}=height_{sum}/count_effector$
+$y_s=height_{weighted}/height_{cloth}$\;
+\Return{$(x_s,y_s)$}
+\caption{Cloth Resizing Algorithm}
+\label{algo:cloth_resize}
+\end{algorithm}
+
 \subsection{Temporal Optimization}
 \label{subsec:3.3}
 
@@ -206,6 +295,9 @@ Author, Book title, page numbers. Publisher, place (year)
 
 \bibitem{PS2102}
 PrimeSense, NITE,  PrimeSense Natural Interaction (2012)
+
+\bibitem{Willis2012}
+Willis B,  Body Proportions in Art,  [Online] (2012)
 
 \end{thebibliography}
 
