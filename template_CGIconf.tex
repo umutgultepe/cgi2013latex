@@ -45,34 +45,32 @@ Objective is to acquire a set of simulation parameters from a human test-subject
 The state-of the art time-of-flight cameras still provide low resolution and quality output compared to current advanced RGB systems. The quality of the input depth map is a crucial factor
 on the overall performance of the system, therefore we first wish to improve the quality of the depth map by applying canonical image optimization methods.
 
-Let us take the depth map D as a 640x480 matrix. Initially, the user pixels are
-extracted by a pixel-by-pixel comparison with the user map. User map is another
-acquired map from the sensor, with the same size as depth map. The value of a
-pixel is set to a non-zero value if the pixel belongs to a recognized user. In
-this case, we are only interested in one user, $D_1$ represents the depth pixels
-of the user we are interested in, whereas $U_1$ is the bit map of the user.
-Also, the non-user pixels must be filled with the mean value of the user pixels, in order to perform Gaussian filtering on the image.
+In this approach, we assume utilization of a time-of-flight camera running with a middleware which also provides a subject map, which has the same size as and denotes the origin of the pixels of the depth map, either belonging to a subject or to the background.
+
+Let us take the input depth map D as a MxN matrix. Initially, the user pixels from D are
+extracted by a pixel-by-pixel comparison with the input user map. We are only interested in the one subject and $D_1$ represents the depth pixels
+of him, whereas $U_1$ is the bit map of the subject.
+Also, the non-subject pixels are set to the mean value of the user pixels, to set the matrix properly for the subsequent optimizations.
 
 \begin{equation}
 D_1=(D-(D \times U_1 )) \times 1/n \times \sum\limits_{i=0}^n ((D \times U_1 )_i + d \times U_1 )
 \label{eqn:patch_depth}
 \end{equation}
 
-Next, we perform Gaussian filtering on the user’s depth map, to normalize and
-improve the quality of the depth map. The size and sigma parameters of the Gaussian filter will be varied in order to maximize the performance and the quality of the results. 
+The subject depth map is now prepared to be processed with Gaussian filtering, to normalize and
+improve the quality. 
 
 \begin{equation}
 D_G=D_1*G
 \label{eqn:gaussian_convolution}
 \end{equation}
 
-After these operations, we have a normalized and filtered depth map, which also
-has better planar values (x and y) since the holes due to depth stream will be filled.
+Gaussian filtering completes the optimization of the input depth map. The overall algorithm is given in Algorithm \ref{algo:depth_patch}.
 
 \begin{algorithm}
 \dontprintsemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
-\KwIn{Raw Depth Stream From Kinect}
-\KwOut{Depth Stream With Patched Holes and Gaussian Optimization }
+\KwIn{Raw Depth and Subject Stream From TOF Camera}
+\KwOut{Optimized Subject Map }
 $depth_{sum}=0$ \;
 $n_{user} =0$\;
 \For{i \bf{from} 0 \bf{to} $d_width$ }{
@@ -94,12 +92,90 @@ $depth_{average}=depth_{sum}/n_{user}$ \;
   $D(i,j)=D(i-m:i+m,j-n:j+m) * Gaussian(m,n,e)$\;
  }}}
 \Return{D}
-\caption{Depth Map Optimization Algorithm}
+\caption{Depth Map Optimization}
 \label{algo:depth_patch}
 \end{algorithm}
 
 \subsection{Body Measurement}
 \label{subsec:3.2} 
+
+By now, we have an optimized depth map, which is now ready for performing key body dimension measurements. The key dimensions are handled in two groups, the collision sphere radii, which are used for the collision detection in the simulation; and height and width parameters, which are used to determine to size of the apparel. 
+
+\subsubsection{Collision Sphere Radii}
+
+The simulation framework utilizes collision spheres and capsules instead of arbitrary geometries. This constraint allows the simulation to run in real time with exceptionally high frame rates by simplifying the algorithms. Threre are a total of 15 joint locations provided by the NITE middleware as seen in Figure \ref{fig:nite_joints}, which are key points for collision sphere placement. For this reason, the framework also utilizes 15 collision spheres.
+
+\begin{figure}
+	\begin{center}
+			\includegraphics[width=0.9\columnwidth]{./figures/nite_joints.png}
+	\end{center}
+	\caption{Human Joints provided by NITE \cite{PS2102}}
+	\label{fig:nite_joints}
+\end{figure}
+
+
+For a realistic simulation, collision spheres must be as large as possible without intersecting with the skin mesh of the avatar. The optimal sphere fitting algorithm to satisfy this requirement is the straight forward approach to start with an infinitely small circle and expand it discretely until it intersects with the body contour: 
+\begin{enumerate}
+\item Take vector $J_i$ which represents the coordinates of the $i^{th}$
+joint.
+Initialize the radius of the sphere by setting it to the z-distance with the overlapping point in the depth map.
+\begin{equation}
+r_i^z=J_i^z-D^z(J_i^x,J_i^y)
+\label{eqn:z_sphere_radius}
+\end{equation}
+\item Start with an infinitely small line segment parallel with x-axis. Expand it until it intersects with the body contour. Take the x-distance between the intersection point and the joint location. Repeat the same process with a line segment parallel with y-axis. Take the bigger radius. While expanding the segment, stop expanding and discard the corresponding result if the end of depth map is reach.
+\begin{equation}
+r_i^{x,y}=max(\| \pm J_i^{x,y} \mp D^{x,y}(J_i^{y,x},J_i^z)\|)
+\label{eqn:x_y_sphere_radius}
+\end{equation}
+\item 3. Take the minimum of three-axis differences, as there should be no intersection with the body contour and the shape must be a sphere.
+\begin{equation}
+r_i=min(r_i^{x,y,z})
+\label{eqn:minimum_sphere-radius}
+\end{equation}
+\end{enumerate}
+
+The process is given in psedocode form in Algorithm \ref{algo:sphere_fitting}.
+
+\begin{algorithm}
+\dontprintsemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
+\KwIn{Optimized Depth Stream From Kinect}
+\KwOut{Collision Sphere radii for each joint }
+\ForEach{joint }{
+$p=pos_{J_m}$\;
+$r_z=\sqrt{P_z^2-D_z(P_x,P_y)^2}$
+\For{i \bf{from} $P_x$ \bf{to} $0$ }{
+\If{$D(i,P_y)$ \bf{equals}  $P_z$} {
+  $r_x^- = i$\;
+  break\;
+ }
+}
+\For{i \bf{from} $P_x$ \bf{to} $depth_width$ }{
+\If{$D(i,P_y)$ \bf{equals}  $P_z$} {
+  $r_x^+ = i$\;
+  break\;
+ }
+}
+\For{j \bf{from} $P_y$ \bf{to} $0$ }{
+\If{$D(P_x,j)$ \bf{equals}  $P_z$} {
+  $r_y^- = j$\;
+  break\;
+ }
+}
+\For{j \bf{from} $P_y$ \bf{to} $depth_height$ }{
+\If{$D(P_x,j)$ \bf{equals}  $P_z$} {
+  $r_y^+ = j$\;
+  break\;
+ }
+}
+$r_m=min(r_z,r_x^-,r_x^+,r_y^-,r_y^+)$
+}
+\Return $(r_0,r_1 \ldots r_n)$ 
+\caption{Sphere Fitting Algorithm}
+\label{algo:sphere_fitting}
+\end{algorithm}  
+
+\subsubsection{Height and Width Parameters}
 
 \subsection{Temporal Optimization}
 \label{subsec:3.3}
@@ -127,6 +203,10 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec imperdiet tincidu
 Author, Article title, Journal, Volume, page numbers (year)
 \bibitem{RefB}
 Author, Book title, page numbers. Publisher, place (year)
+
+\bibitem{PS2102}
+PrimeSense, NITE,  PrimeSense Natural Interaction (2012)
+
 \end{thebibliography}
 
 \end{document}
