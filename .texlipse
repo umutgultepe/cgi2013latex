@@ -1,0 +1,14 @@
+#TeXlipse project settings
+#Thu Jan 31 12:17:43 EET 2013
+markTmpDer=true
+builderNum=2
+outputDir=
+makeIndSty=
+bibrefDir=
+outputFormat=pdf
+tempDir=tmp
+mainTexFile=template_CGIconf.tex
+outputFile=template_CGIconf.pdf
+langSpell=en
+markDer=true
+srcDir=
