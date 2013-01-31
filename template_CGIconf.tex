@@ -236,7 +236,7 @@ W,H_i=1/(n+1) \times \sum\limits_{j=0}^n W,H_i^j
 \dontprintsemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
 
 $t_{proportion}=import(Table \ref{tbl:human_body_proportions})$ \;
-$t_{primary}=import(Table \ref{tbl:primary_proportions})$ \;
+$t_{primary}=w_{shoulder},h_{body}$ \;
 $ct=cloth_{type}$\;
 $width_{main}=t_{proportion}.width(ct)$\;
 $width_{sum}=0$\;
@@ -262,12 +262,36 @@ $count_effector++ $\;
 $height_{weighted}=height_{sum}/count_effector$
 $y_s=height_{weighted}/height_{cloth}$\;
 \Return{$(x_s,y_s)$}
-\caption{Cloth Resizing Algorithm}
+\caption{Body Dimension Estimation}
 \label{algo:cloth_resize}
 \end{algorithm}
 
 \subsection{Temporal Optimization}
 \label{subsec:3.3}
+
+By now, we have acquired the required body dimensions and collision sphere parameters for a realistic simulation. 
+
+Yet, the measurements are performed on a filtered version of a depth sensor with high error rates. In order to overcome the noise and overall depth-sense faults,
+the prior measurements are repeated for the duration of 1 second, which corresponds to 30 frames of input depth map. 
+A considerable different approach here would be to employ the temporal optimization on the depth map instead of the measured parameters. We realized the results suffer due to the motions of the subject, as most subjects failed to keep their exact form for one seconds.
+
+Temporal averaging consists of collecting the specified parameters for each frame in one second and taking the mean. This step finalizes the parameters and delivers the required paramaters for simulation environment creation. 
+\begin{algorithm}
+\dontprintsemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
+\KwIn{Raw Depth Stream From Kinect}
+\KwOut{Depth Stream With Patched Holes and Gaussian Optimization }
+$s=2 \times 30 Array for x and y scaling parameters for 30 frames$ \;
+$r=16 \times 30 Array for joint radii for 30 frames$\;
+\For{i \bf{from} 0 \bf{to} $30 frames$ }{
+	r[i]=fitSpheres()\;
+	s[i]=optimizeScaleParameters()\;
+}
+$r_{final}$=avg(r)\;
+$s_{final}$=avg(s)\;
+\caption{Temporal Averaging}
+\label{algo:temporal_averaging}
+\end{algorithm}
+
 
 \section{Experiments}
 \label{sec:4}
