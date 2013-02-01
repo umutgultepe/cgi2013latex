@@ -11,7 +11,7 @@
 \journalname{CGI2013} % The correct name will be entered by the editor
 \begin{document}
 
-\title{Real Time Cloth Fitting for Virtual Dressing Rooms }
+\title{Cloth and Avatar Preparation for Virtual Fitting Rooms }
 \subtitle{Insert your subtitle here, otherwise leave blank}
 \author{Umut Gultepe  \and Ugur Gudukbay}
 \institute{Bilkent University \at Ankara \and Bilkent University \at Ankara}
@@ -20,29 +20,30 @@
 \maketitle
 
 \begin{abstract}
-Current cloth fitting algorithms for virtual avatars and real humans. 
-\keywords{First keyword \and Second keyword \and More}
+This paper presents a novel approach to adjusting a virtual cloth and avatar with respect to a specific user for a virtual fitting room framework. Proposed method scales the cloth and the avatar accordingly with the subjects body dimensions, also perepares the physics simulation and collision detection environment, with a total preprocessing time of one second, eliminating the requirement for long preprocessing times to achieve a realistic fitting experience.
+\keywords{Virtual Fitting Room \and Depth Sensor \and Character Animation}
 \end{abstract}
 
 \section{Introdcution}
 \label{sec:1}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec imperdiet tincidunt nibh quis dictum. Pellentesque eget tellus nunc. Donec semper blandit metus vel rhoncus. Nullam tincidunt enim nibh, suscipit volutpat neque. Ut eget ipsum dolor, ac semper sapien. Nunc nec rutrum nulla. Vivamus sodales auctor orci, vel bibendum leo pretium at. Fusce placerat lectus mi.
+Apparel industry is one of the biggest on the planet, estimated to be \$2,560 trillion worldwide in 2010 \cite{Breyer2012}. It is also the second biggest and fastest growing e-commerce sector \cite{Fredricksen2012}. One of the most time-consuming stages of shopping is trying the apparels on, which is not even possible in online stores. With the advances in the augmented reality technologies, virtual fitting rooms are slowly taking their places in both real and virtual stores  \cite{Fitnect2012,Styku2013}, enabling customers to try on different items faster and giving correct size suggestions.
+
+Advanced virtual fitting rooms show the apparel items on either the user itself or a virtual avatar, both scaled to reflect the users body chararacteristics \cite{FaceCake2013}. Some of them also employ garment simulation for a better fitting experience\cite{Styku2013}.
+
+This paper presents a new approach to perparing a virtaul clothing item and a virtual avatar to be adjusted for a specific subject on the fly. Constraining the preprocessing time to 1 second, the clothing piece and the avatar is adjusted automatically and perpared for a physics powered virtual fitting room framework. 
 
 \section{Previous Works}
 \label{sec:2}
-With the advances in sensor technology, depth sensors became available at consumer-level prices with better performance. This prompted a wave of research based on depth sensors in 
-various fields, such as Rehabilition \cite{Yao2011}, indoor modelling \cite{Peter2012} and medicine \cite{Gallo2012}. Another topic which attracted significant attention from both
-researchers and companies is real-time virtual fitting rooms. Giovanni \cite{Giovanni2012} developed a virtual try-on system utilizing a calibrated set of Kinect and an HD Camera, while comparing the 
-two state of the art Depth MiddleWares- OpenNI\cite{OpenNI2013} and Kinect for Windows SDK\cite{Microsoft2013}. 
+Virtual fitting rooms have been a research subject for more than a decade. Protopsaltou \cite{Protopsaltou2002} has developed an internet based approach for virtual fitting rooms, although it was not real time and reuqired marker based motion capture systems for animation. Zhang \cite{Zhang2008} used a multi-camera system utilizing SFS \cite{Cheung2005} techniques to build a real time intelligent fitting room. 
+
+Advances in time-of-flight technology made depth sensors available at consumer-level prices with better performance. This prompted a wave of research based on depth sensors in various fields, such as Rehabilition \cite{Yao2011}, indoor modelling \cite{Peter2012} and medicine \cite{Gallo2012}. Another topic which attracted significant attention from both researchers and companies is real-time virtual fitting rooms. Giovanni \cite{Giovanni2012} developed a virtual try-on system utilizing a calibrated set of Kinect and an HD Camera, while comparing the two state of the art depth sensing SDKs- OpenNI\cite{OpenNI2013} and Kinect for Windows SDK\cite{Microsoft2013}.
+
+One problem every researcher encountered during their studies with depth sensors is the feeble quality and noisyness of the depth stream. This problem is analyzed in depth by Khoshelham \cite{Khoshelham2012} and concluded that standart deviation reaaches 2cm in a measuring distance of 3m. Matyunin \cite{Matyunin2011} attempted to improve the quality by filtering with additional information from the attached RGB camera.  
 
 \section{Methodology}
 \label{sec:3}
-Objective is to acquire a set of simulation parameters from a human test-subject for a pre-modeled clothing mesh,
- which is to be displayed on a virtual avatar reflecting the body characteristics of the aforementioned subject.
-  The set of parameters for the simulation include the body height and width, also the radii for the collision 
-  spheres which have their centers coinciding with the joints of the virtual avatar's skeleton. 
-  Body width and height are then utilized to estimate the body size of the user, collision spheres are used 
-  in the dressing room simulation, to collide with the cloth particles.   
+Objective is to acquire a set of simulation parameters from a human test-subject for a pre-modeled clothing mesh, which is to be displayed on a virtual avatar reflecting the body characteristics of the aforementioned subject.  The set of parameters for the simulation include the body height and width, also the radii for the collision  spheres which have their centers coinciding with the joints of the virtual avatar's skeleton.
+Body width and height are then utilized to estimate the body size of the user, collision spheres are used in the dressing room simulation, to collide with the cloth particles.   
   
 \subsection{Depth Map Optimization}
 \label{subsec:3.1} 
@@ -315,16 +316,9 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec imperdiet tincidu
 \end{figure}
 
 \begin{thebibliography}{}
-\bibitem{RefA}
-Author, Article title, Journal, Volume, page numbers (year)
-\bibitem{RefB}
-Author, Book title, page numbers. Publisher, place (year)
 
 \bibitem{PS2102}
 PrimeSense, NITE,  PrimeSense Natural Interaction (2012)
-
-\bibitem{Willis2012}
-Willis B,  Body Proportions in Art,  [Online] (2012)
 
 \bibitem{Willis2012}
 Willis B,  Body Proportions in Art,  [Online] (2012)
@@ -336,16 +330,46 @@ Microsoft,  Kinect for Windows, [Online] (2013)
 OpenNI,  The standard framework for 3D sensing, [Online] (2013)
 
 \bibitem{Peter2012}
-Peter Henry and Michael Krainin and Evan Herbst and Xiaofeng Ren and Dieter Fox, RGB-D mapping: Using Kinect-style depth cameras for dense 3D modeling of indoor environments, The International Journal of Robotics Research , 31, 647-663 (2012)
+Peter Henry and Michael Krainin and Evan Herbst and Xiaofeng Ren and Dieter Fox, RGB-D mapping: Using Kinect-style depth cameras for dense 3D modeling of indoor environments, The International Journal of Robotics Research , Volume 31, 647-663 (2012)
 
 \bibitem{Gallo2012}
-Gallo L,  Controller-free exploration of medical image data: Experiencing the Kinect, Computer Based Medical Systems , 24,  (2011)
+Gallo L,  Controller-free exploration of medical image data: Experiencing the Kinect, Computer Based Medical Systems ,Volume 24,  (2011)
 
 \bibitem{Giovanni2012}
-Stevie Giovanni, Yeun Chul Choi, Jay Huang, Khoo Eng Tat, and KangKang Yin,  Virtual Try-On Using Kinect and HD Camera, Lecture Notes in Computer Science , 7660, 55-65 , (2012)
+Stevie Giovanni, Yeun Chul Choi, Jay Huang, Khoo Eng Tat, and KangKang Yin,  Virtual Try-On Using Kinect and HD Camera, Lecture Notes in Computer Science , Volume 7660, 55-65 , (2012)
 
 \bibitem{Yao2011}
-Yao-Jen Changa and Shu-Fang Chenb and Jun-Da Huang,  A Kinect-based system for physical rehabilitation: A pilot study for young adults with motor disabilities, Research in Developmental Disabilities, 32, 2566–2570 (2011)
+Yao-Jen Changa and Shu-Fang Chenb and Jun-Da Huang,  A Kinect-based system for physical rehabilitation: A pilot study for young adults with motor disabilities, Research in Developmental Disabilities, Volume 32, 2566–2570 (2011)
+
+\bibitem{Protopsaltou2002}
+D. Protopsaltou, C. Luible, M. Arevalo-Poizat, N. Magnenat-Thalmann, A body and garment creation method for an Internet based virtual fitting room. Proc. Computer Graphics International 2002 (CGI '02), Springer, pp. 105-122, 2002.
+ 
+\bibitem{Zhang2008}
+Wei Zhang, Takashi Matsumoto, Juan Liu, Maurice Chu, and Bo Begole. An intelligent fitting room using multi-camera perception. In Proceedings of the 13th international conference on Intelligent user interfaces (IUI '08). ACM, New York, NY, USA, 60-69, 2008 
+
+\bibitem{Cheung2005}
+Kong-man Cheung, Simon Baker, Takeo Kanade,Shape-From-Silhouette Across Time Part II: Applications to Human Modeling and Markerless Motion Tracking,International Journal of Computer Vision ,Volume 63, pp 225-245, 2005
+
+\bibitem{Khoshelham2012}
+Khoshelham, K.; Elberink, S.O. Accuracy and Resolution of Kinect Depth Data for Indoor Mapping Applications. Sensors 2012, 12, 1437-1454.
+
+\bibitem{Matyunin2011}
+Matyunin, S.; Vatolin, D.; Berdnikov, Y.; Smirnov, M.; , "Temporal filtering for depth maps generated by Kinect depth camera," 3DTV Conference: The True Vision - Capture, Transmission and Display of 3D Video (3DTV-CON), 2011 , vol., no., pp.1-4, 16-18 May 2011
+
+\bibitem{Breyer2012}
+Breyer, M,  25 Shocking Fashion Industry Statistics, [Online] (2012)
+
+\bibitem{Fredricksen2012}
+Fredricksen C,Apparel Drives US Retail Ecommerce Sales Growth, [Online] (2012) 
+
+\bibitem{Fitnect2012}
+Fitnect Interactive,Fitnect, [Online] (2012)
+
+\bibitem{Styku2013}
+Styku, LLC, [Online] (2013)
+
+\bibitem{FaceCake2013}
+FaceCake Marketing Technologies Inc, [Online] (2013)
 
 \end{thebibliography}
 
