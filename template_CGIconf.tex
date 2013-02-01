@@ -20,25 +20,25 @@
 \maketitle
 
 \begin{abstract}
-This paper presents a novel approach to adjusting a virtual cloth and avatar with respect to a specific user for a virtual fitting room framework. Proposed method scales the cloth and the avatar accordingly with the subjects body dimensions, also perepares the physics simulation and collision detection environment, with a total preprocessing time of one second, eliminating the requirement for long preprocessing times to achieve a realistic fitting experience.
+This paper presents a novel approach to adjusting a virtual cloth and avatar with respect to a specific user for a virtual fitting room framework. Proposed method scales the cloth and the avatar accordingly with the subjects body dimensions, also prepares the physics simulation and collision detection environment, with a total preprocessing time of one second, eliminating the requirement for long preprocessing times to achieve a realistic fitting experience.
 \keywords{Virtual Fitting Room \and Depth Sensor \and Character Animation}
 \end{abstract}
 
-\section{Introdcution}
+\section{Introduction}
 \label{sec:1}
-Apparel industry is one of the biggest on the planet, estimated to be \$2,560 trillion worldwide in 2010 \cite{Breyer2012}. It is also the second biggest and fastest growing e-commerce sector \cite{Fredricksen2012}. One of the most time-consuming stages of shopping is trying the apparels on, which is not even possible in online stores. With the advances in the augmented reality technologies, virtual fitting rooms are slowly taking their places in both real and virtual stores  \cite{Fitnect2012,Styku2013}, enabling customers to try on different items faster and giving correct size suggestions.
+Apparel industry is one of the biggest on the planet, estimated to be \$2,560 trillion worldwide in 2010 \cite{Breyer2012}. It is also the second biggest and fastest growing e-commerce sector \cite{Fredricksen2012}. One of the most time-consuming stages of apparel shopping is trying the apparels on, which is not even possible in online stores. With the advances in the augmented reality technologies, virtual fitting rooms are slowly taking their places in both real and virtual stores  \cite{Fitnect2012,Styku2013} to imrpove the quality of apparel trying experience while also making it faster.
 
-Advanced virtual fitting rooms show the apparel items on either the user itself or a virtual avatar, both scaled to reflect the users body chararacteristics \cite{FaceCake2013}. Some of them also employ garment simulation for a better fitting experience\cite{Styku2013}.
+Advanced virtual fitting rooms show the apparel items either on the video of the user or on a virtual avatar, both scaled to reflect the user's body characteristics \cite{FaceCake2013}. Some of them also employ physics based garment simulation for a better fitting experience\cite{Styku2013}.
 
-This paper presents a new approach to perparing a virtaul clothing item and a virtual avatar to be adjusted for a specific subject on the fly. Constraining the preprocessing time to 1 second, the clothing piece and the avatar is adjusted automatically and perpared for a physics powered virtual fitting room framework. 
+This paper presents a new approach to adjusting a virtual clothing item and a virtual avatar for a specific subject on the fly. Constraining the overall preprocessing time to 1 second, the clothing piece and the avatar is adjusted automatically and prepared for a physics powered virtual fitting room framework. 
 
 \section{Previous Works}
 \label{sec:2}
-Virtual fitting rooms have been a research subject for more than a decade. Protopsaltou \cite{Protopsaltou2002} has developed an internet based approach for virtual fitting rooms, although it was not real time and reuqired marker based motion capture systems for animation. Zhang \cite{Zhang2008} used a multi-camera system utilizing SFS \cite{Cheung2005} techniques to build a real time intelligent fitting room. 
+Virtual fitting rooms have been a research subject for more than a decade. Protopsaltou \cite{Protopsaltou2002} has developed an internet based approach for virtual fitting rooms, although it was not real time and required marker based motion capture systems for animation. Zhang \cite{Zhang2008} used a multi-camera system utilizing SFS \cite{Cheung2005} techniques to build a real time intelligent fitting room. 
 
-Advances in time-of-flight technology made depth sensors available at consumer-level prices with better performance. This prompted a wave of research based on depth sensors in various fields, such as Rehabilition \cite{Yao2011}, indoor modelling \cite{Peter2012} and medicine \cite{Gallo2012}. Another topic which attracted significant attention from both researchers and companies is real-time virtual fitting rooms. Giovanni \cite{Giovanni2012} developed a virtual try-on system utilizing a calibrated set of Kinect and an HD Camera, while comparing the two state of the art depth sensing SDKs- OpenNI\cite{OpenNI2013} and Kinect for Windows SDK\cite{Microsoft2013}.
+Advances in time-of-flight technology made depth sensors available at consumer-level prices with better performance. This prompted a wave of research based on depth sensors in various fields, such as Rehabilitation \cite{Yao2011}, indoor modeling \cite{Peter2012} and medicine \cite{Gallo2012}. Another topic which attracted significant attention from both researchers and companies is real-time virtual fitting rooms. Giovanni \cite{Giovanni2012} developed a virtual try-on system utilizing a calibrated set of Kinect and an HD Camera, while comparing the two state of the art depth sensing SDKs- OpenNI\cite{OpenNI2013} and Kinect for Windows SDK\cite{Microsoft2013}.
 
-One problem every researcher encountered during their studies with depth sensors is the feeble quality and noisyness of the depth stream. This problem is analyzed in depth by Khoshelham \cite{Khoshelham2012} and concluded that standart deviation reaaches 2cm in a measuring distance of 3m. Matyunin \cite{Matyunin2011} attempted to improve the quality by filtering with additional information from the attached RGB camera.  
+One problem every researcher encountered during their studies with depth sensors is the feeble quality and noisiness of the depth stream. This problem is analyzed in depth by Khoshelham \cite{Khoshelham2012} and concluded that standard deviation reaches 2cm in a measuring distance of 3m. Matyunin \cite{Matyunin2011} attempted to improve the quality by filtering with additional information from the attached RGB camera.  
 
 \section{Methodology}
 \label{sec:3}
@@ -47,23 +47,18 @@ Body width and height are then utilized to estimate the body size of the user, c
   
 \subsection{Depth Map Optimization}
 \label{subsec:3.1} 
-The state-of the art time-of-flight cameras still provide low resolution and quality output compared to current advanced RGB systems. The quality of the input depth map is a crucial factor
-on the overall performance of the system, therefore we first wish to improve the quality of the depth map by applying canonical image optimization methods.
+The state-of the art time-of-flight cameras still provide low resolution and quality output compared to current advanced RGB systems. The quality of the input depth map is a crucial factor on the overall performance of the system, therefore we first wish to improve the quality of the depth map by applying canonical image optimization methods.
 
 In this approach, we assume utilization of a time-of-flight camera running with a middleware which also provides a subject map, which has the same size as and denotes the origin of the pixels of the depth map, either belonging to a subject or to the background.
 
-Let us take the input depth map D as a MxN matrix. Initially, the user pixels from D are
-extracted by a pixel-by-pixel comparison with the input user map. We are only interested in the one subject and $D_1$ represents the depth pixels
-of him, whereas $U_1$ is the bit map of the subject.
-Also, the non-subject pixels are set to the mean value of the user pixels, to set the matrix properly for the subsequent optimizations.
+Let us take the input depth map D as a MxN matrix. Initially, the user pixels from D are extracted by a pixel-by-pixel comparison with the input user map. We are only interested in the one subject and $D_1$ represents the depth pixels of him, whereas $U_1$ is the bit map of the subject. Also, the non-subject pixels are set to the mean value of the user pixels, to set the matrix properly for the subsequent optimizations.
 
 \begin{equation}
 D_1=(D-(D \times U_1 )) \times 1/n \times \sum\limits_{i=0}^n ((D \times U_1 )_i + d \times U_1 )
 \label{eqn:patch_depth}
 \end{equation}
 
-The subject depth map is now prepared to be processed with Gaussian filtering, to normalize and
-improve the quality. 
+The subject depth map is now prepared to be processed with Gaussian filtering, to normalize and improve the quality. 
 
 \begin{equation}
 D_G=D_1*G
@@ -104,11 +99,11 @@ $depth_{average}=depth_{sum}/n_{user}$ \;
 \subsection{Body Measurement}
 \label{subsec:3.2} 
 
-By now, we have an optimized depth map, which is now ready for performing key body dimension measurements. The key dimensions are handled in two groups, the collision sphere radii, which are used for the collision detection in the simulation; and height and width parameters, which are used to determine to size of the apparel. 
+By now, we have an optimized depth map, which is ready for performing key body dimension measurements. The key dimensions are handled in two groups, the collision sphere radii, which are used for the collision detection in the simulation; and height and width parameters, which are used to determine to size of the apparel. 
 
 \subsubsection{Collision Sphere Radii}
 
-The simulation framework utilizes collision spheres and capsules instead of arbitrary geometries. This constraint allows the simulation to run in real time with exceptionally high frame rates by simplifying the algorithms. Threre are a total of 15 joint locations provided by the NITE middleware as seen in Figure \ref{fig:nite_joints}, which are key points for collision sphere placement. For this reason, the framework also utilizes 15 collision spheres.
+The simulation framework utilizes collision spheres and capsules instead of arbitrary geometries. This constraint allows the simulation to run in real time with exceptionally high frame rates by simplifying the algorithms. There are a total of 15 joint locations provided by the middleware as seen in Figure \ref{fig:nite_joints}, which are key points for collision sphere placement. For this reason, the framework also utilizes 15 collision spheres and the capsules formed by pairs.
 
 \begin{figure}
 	\begin{center}
@@ -119,7 +114,7 @@ The simulation framework utilizes collision spheres and capsules instead of arbi
 \end{figure}
 
 
-For a realistic simulation, collision spheres must be as large as possible without intersecting with the skin mesh of the avatar. The optimal sphere fitting algorithm to satisfy this requirement is the straight forward approach to start with an infinitely small circle and expand it discretely until it intersects with the body contour: 
+For a realistic simulation, collision spheres must be as large as possible without intersecting the skin mesh of the avatar. The optimal sphere fitting algorithm to satisfy this requirement is the straight forward approach to start with an infinitely small circle and expand it discretely until it intersects with the body contour: 
 \begin{enumerate}
 \item Take vector $J_i$ which represents the coordinates of the $i^{th}$
 joint.
@@ -140,7 +135,7 @@ r_i=min(r_i^{x,y,z})
 \end{equation}
 \end{enumerate}
 
-The process psedocode is given in Algorithm \ref{algo:sphere_fitting}.
+The process pseudocode is given in Algorithm \ref{algo:sphere_fitting}.
 
 \begin{algorithm}
 \dontprintsemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
@@ -182,7 +177,7 @@ $r_m=min(r_z,r_x^-,r_x^+,r_y^-,r_y^+)$
 
 \subsubsection{Height and Width Parameters}
 
-The width and height of the subject is important for determining the proper actual size for the cloth. However, a straightforward estimation of body height and shoulderwidth is prone to errors due to the noise and quality of the incoming depth map. In order to minimize the error factor, a larger of the subject's body are measured, to be used in width-height estimation later. This set of dimensions are listed in Table \ref{tbl:human_body_proportions}. 
+The width and height of the subject is important for determining the proper actual size for the cloth. However, a straightforward estimation of body height and shoulder width is prone to errors due to the noise and quality of the incoming depth map. In order to minimize the error factor, a larger of the subject's body are measured, to be used in width-height estimation later. This set of dimensions are listed in Table \ref{tbl:human_body_proportions}. 
 For the sake of relative representation, head width and head height are taken as unit width and height respectively. The Measure Source column in the table denotes the source for the estimation of respective parameter:
 \begin{itemize} 
 \item
@@ -220,11 +215,11 @@ Torso Height & - & - (9) & Joint Location \\
 	\label{fig:body_proportions}
 \end{figure}
 
-Measurements will be performed in real-world space rather than projective space as a real size estimation is crucial for determining the appropriate cloth size. Although the latter would be sufficient enough for simulation purposes only, when there is no concern of real-life apparel fitting. After the acquisiton of the required scaling parameters for the subject, whole cloth and avatar should be scaled in three dimensions uniformly, in contrast with a segmented scaling. This decision is based on the scope of this work, as it is a standard-sized apparel fitting application, without extensive customization. Following the measurements, the body width and shoulder height are estimated as following:
+Measurements will be performed in real-world space rather than projective space as a real size estimation is crucial for determining the appropriate cloth size. Although the latter would be sufficient enough for simulation purposes only, when there is no concern of real-life apparel fitting. After the acquisition of the required scaling parameters for the subject, whole cloth and avatar should be scaled in three dimensions uniformly, in contrast with a segmented scaling. This decision is based on the scope of this work, as it is a standard-sized apparel fitting application, without extensive customization. Following the measurements, the body width and shoulder height are estimated as following:
 
 \begin{enumerate}
 \item Take the primary dimension (either body height or shoulder width) $P_i^0$. This process will be repeated for width (W) and height (H).
-\item Using the remaining measurements in the set,  estimate the primary dimension $P_i$ as $P_i^j$ using proportion $R_i^j$ from \ref{tbl:human_body_proportions}.
+\item Using the remaining measurements in the set, estimate the primary dimension $P_i$ as $P_i^j$ using proportion $R_i^j$ from \ref{tbl:human_body_proportions}.
 \begin{equation}
 W,H_i^j=W,H_j \times R_i^j
 \label{eqn:proportion_estimation}
@@ -271,7 +266,7 @@ $y_s=height_{weighted}/height_{cloth}$\;
 \end{algorithm}
 
 \subsection{Temporal Optimization}
-\label{subsec:3.3}
+\label{subsec:3.3} 
 
 By now, we have acquired the required body dimensions and collision sphere parameters for a realistic simulation. 
 
@@ -279,7 +274,7 @@ Yet, the measurements are performed on a filtered version of a depth sensor with
 the prior measurements are repeated for the duration of 1 second, which corresponds to 30 frames of input depth map. 
 A considerable different approach here would be to employ the temporal optimization on the depth map instead of the measured parameters. We realized the results suffer due to the motions of the subject, as most subjects failed to keep their exact form for one seconds.
 
-Temporal averaging consists of collecting the specified parameters for each frame in one second and taking the mean. This step finalizes the parameters and delivers the required paramaters for simulation environment creation. 
+Temporal averaging consists of collecting the specified parameters for each frame in one second and taking the mean. This step finalizes the parameters and delivers the required parameters for simulation environment creation. 
 \begin{algorithm}
 \dontprintsemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
 \KwIn{Raw Depth Stream From Kinect}
@@ -365,5 +360,6 @@ FaceCake Marketing Technologies Inc, [Online] (2013)
 \end{thebibliography}
 
 \end{document}
+
 
 
