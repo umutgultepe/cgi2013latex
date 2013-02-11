@@ -305,11 +305,11 @@ Optimization process runs after a subject is recognized, identified and calibrat
 Table \ref{tbl:body_results} holds the measurements for the body dimensions, as well as the errors and the standart deviation of the measurements in 30 frames.  
 
 \begin{table}
-\begin{tabularx}{\columnwidth}{ | p{0.06\columnwidth} |   p{0.06\columnwidth} |   p{0.06\columnwidth} |   p{0.06\columnwidth}|   p{0.06\columnwidth}|   p{0.06\columnwidth}|   p{0.06\columnwidth}|   p{0.06\columnwidth}|   p{0.06\columnwidth} |}
+\begin{tabularx}{\columnwidth}{ | p{0.05\columnwidth} |   p{0.05\columnwidth} |   p{0.07\columnwidth} |   p{0.05\columnwidth}|   p{0.06\columnwidth}|   p{0.05\columnwidth}|   p{0.07\columnwidth}|   p{0.06\columnwidth}|   p{0.06\columnwidth} |}
 \hline
-  & \multicolumn{4}{c|}{\textbf{Shoulder Width}} & \multicolumn{4}{c|}{\textbf{Body Height}} \\ \hline
+  & \multicolumn{4}{c|}{\textbf{Shoulder Width (cm)}} & \multicolumn{4}{c|}{\textbf{Body Height (cm)}} \\ \hline
   \rotatebox{90}{Subject } & \rotatebox{90}{Real } & \rotatebox{90}{Estimated } & \rotatebox{90}{Error } & \rotatebox{90}{Deviation } & \rotatebox{90}{Real } & \rotatebox{90}{Estimated } & \rotatebox{90}{Error } & \rotatebox{90}{Deviation } \\ \hline
- 1 & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8  \\ \hline
+ 1 & 43 & 43.6 & 1\% & 7.8 & 172 & 170.8 & 0.6\% & 8.5  \\ \hline
 \end{tabularx}
 \caption{Body Size Estimations and Errors}
 \label{tbl:body_results}
@@ -317,11 +317,19 @@ Table \ref{tbl:body_results} holds the measurements for the body dimensions, as 
 
 The total time for the optimization algorithm did not exceed 1.005 seconds in any of the cases. Considering 1.0 seconds is the time for acquiring 30 frames of input from the depth sensor, it is safe to say that the proposed algorithm does not introduce any delays and problems for a real time application, as it needs to run only once in the beginning of the simulation.
 
-For the collision spheres, the quality of the result can be assessed by the smoothness of the collision simulation, as seen in Figure XX. Throughout the program, no unnatural intersection between the cloth the avatar took place, while the cloth appears to rest on the skin naturally, without space between two meshes.
+For the collision spheres, the quality of the result can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the program, no unnatural intersection between the cloth the avatar took place, while the cloth appears to rest on the skin naturally, without space between two meshes.
+
+\begin{figure}
+	\begin{center}
+			\includegraphics[width=0.9\columnwidth]{./figures/scshot.png}
+	\end{center}
+	\caption{System At Work}
+	\label{fig:system}
+\end{figure}
 
 \section{Conclusion and Future Work}
 \label{sec:5}
-The simulation framework is shown in Figure XX with detailed view of the collision region. Both optimization and the simulation are performed on a high-end PC with Intel i7- and NVIDIA GeForce GTX560Ti. The maximum optimization time is 1.002 seconds, which is constrained by the frame rate of the depth sensor. The actual simulation runs at 600fps on 1920x1080 resolution. Body sizes are estimated with error rates less than 5\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
+The simulation framework is shown in Figure \ref{fig:system}. Both optimization and the simulation are performed on a high-end PC with Intel i7- and NVIDIA GeForce GTX560Ti. The maximum optimization time is 1.002 seconds, which is constrained by the frame rate of the depth sensor. The actual simulation runs at 600fps on 1920x1080 resolution. Body sizes are estimated with error rates less than 5\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
 
 In future work, we would like to improve the quality of measurements by using data from the RGB sensor as well, as it provides valuable information. We would also like to provide more collision sphere information to the framework for better collision detection.
 
