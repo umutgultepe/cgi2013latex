@@ -294,10 +294,10 @@ $s_{final}$=avg(s)\;
 
 \section{Experiments}
 \label{sec:4}
-The optimization algorithm described in \ref{sec:4} is implemented on a virtual dressing framework, which provides a set of boiler plate features. These features are out of the scope of this work, the framework provides the testbench for experimentation. Boiler plate features are:
+The optimization algorithm described in Section \ref{sec:4} is implemented on a virtual dressing framework, which provides a set of boiler plate features. These features are out of the scope of this work, the framework provides the testbench for experimentation. Boiler plate features are:
 \begin{itemize}
   \item 3D Scene Rendering and Render Cycle Management
-  \item CLoth Simulation Framework
+  \item Cloth Simulation Framework
   \item Depth Sensor Integration
 \end{itemize} 
 Optimization process runs after a subject is recognized, identified and calibrated for tracking. Following the parameter estimation, virtual avatar and cloth are created and simulation is started.
@@ -317,10 +317,14 @@ Table \ref{tbl:body_results} holds the measurements for the body dimensions, as 
 
 The total time for the optimization algorithm did not exceed 1.005 seconds in any of the cases. Considering 1.0 seconds is the time for acquiring 30 frames of input from the depth sensor, it is safe to say that the proposed algorithm does not introduce any delays and problems for a real time application, as it needs to run only once in the beginning of the simulation.
 
+For the collision spheres, the quality of the result can be assessed by the smoothness of the collision simulation, as seen in Figure XX. Throughout the program, no unnatural intersection between the cloth the avatar took place, while the cloth appears to rest on the skin naturally, without space between two meshes.
 
-\section{Conclusion}
+\section{Conclusion and Future Work}
 \label{sec:5}
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec imperdiet tincidunt nibh quis dictum. Pellentesque eget tellus nunc. Donec semper blandit metus vel rhoncus. Nullam tincidunt enim nibh, suscipit volutpat neque. Ut eget ipsum dolor, ac semper sapien. Nunc nec rutrum nulla. Vivamus sodales auctor orci, vel bibendum leo pretium at. Fusce placerat lectus mi.
+The simulation framework is shown in Figure XX with detailed view of the collision region. Both optimization and the simulation are performed on a high-end PC with Intel i7- and NVIDIA GeForce GTX560Ti. The maximum optimization time is 1.002 seconds, which is constrained by the frame rate of the depth sensor. The actual simulation runs at 600fps on 1920x1080 resolution. Body sizes are estimated with error rates less than 5\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
+
+In future work, we would like to improve the quality of measurements by using data from the RGB sensor as well, as it provides valuable information. We would also like to provide more collision sphere information to the framework for better collision detection.
+
 
 \begin{thebibliography}{}
 
