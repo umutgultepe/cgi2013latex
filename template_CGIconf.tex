@@ -8,6 +8,7 @@
 \usepackage{graphicx}
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
 \usepackage{tabularx}
+\usepackage{epstopdf}
 \journalname{CGI2013} % The correct name will be entered by the editor
 \begin{document}
 
@@ -107,7 +108,7 @@ The simulation framework utilizes collision spheres and capsules instead of arbi
 
 \begin{figure}
 	\begin{center}
-			\includegraphics[width=0.9\columnwidth]{./figures/nite_joints.png}
+			\includegraphics[width=0.9\columnwidth]{./figures/nite_joints.eps}
 	\end{center}
 	\caption{Human Joints provided by NITE \cite{PS2102}}
 	\label{fig:nite_joints}
@@ -209,7 +210,7 @@ Torso Height & - & - (9) & Joint Location \\
 
 \begin{figure}
 	\begin{center}
-			\includegraphics[width=0.9\columnwidth]{./figures/body_proportions.png}
+			\includegraphics[width=0.9\columnwidth]{./figures/body_proportions.eps}
 	\end{center}
 	\caption{Proportions on the Body}
 	\label{fig:body_proportions}
@@ -294,7 +295,7 @@ $s_{final}$=avg(s)\;
 
 \section{Experiments}
 \label{sec:4}
-The optimization algorithm described in Section \ref{sec:4} is implemented on a virtual dressing framework, which provides a set of boiler plate features. These features are out of the scope of this work, the framework provides the testbench for experimentation. Boiler plate features are:
+The optimization algorithm described in Section \ref{sec:4} is implemented on a virtual dressing framework, which provides a set of boiler plate features. These features are out of the scope of this work, the framework provides the testbench for experimentation, providing the following basic functions:
 \begin{itemize}
   \item 3D Scene Rendering and Render Cycle Management
   \item Cloth Simulation Framework
@@ -309,11 +310,13 @@ Table \ref{tbl:body_results} holds the measurements for the body dimensions, as 
 \hline
   & \multicolumn{4}{c|}{\textbf{Shoulder Width (cm)}} & \multicolumn{4}{c|}{\textbf{Body Height (cm)}} \\ \hline
   \rotatebox{90}{Subject } & \rotatebox{90}{Real } & \rotatebox{90}{Estimated } & \rotatebox{90}{Error } & \rotatebox{90}{Deviation } & \rotatebox{90}{Real } & \rotatebox{90}{Estimated } & \rotatebox{90}{Error } & \rotatebox{90}{Deviation } \\ \hline
- 1 & 43 & 43.6 & 1\% & 7.8 & 172 & 170.8 & 0.6\% & 8.5  \\ \hline
+ 1 & 43 & 43.6 & 1\% & 7.8 & 172 & 170.8 & 0.6\% & 2.5  \\ \hline
+ 2 & 46 & 44.3 & 3\% & 8.5 & 176 & 172.1 & 2\% & 1.4  \\ \hline
+ 3 & 51 & 48.8 & 4\% & 12.1 & 176 & 174.0 & 1\% & 6.6  \\ \hline
 \end{tabularx}
 \caption{Body Size Estimations and Errors}
 \label{tbl:body_results}
-\end{table}
+\end{table} 
 
 The total time for the optimization algorithm did not exceed 1.005 seconds in any of the cases. Considering 1.0 seconds is the time for acquiring 30 frames of input from the depth sensor, it is safe to say that the proposed algorithm does not introduce any delays and problems for a real time application, as it needs to run only once in the beginning of the simulation.
 
@@ -321,7 +324,7 @@ For the collision spheres, the quality of the result can be assessed by the smoo
 
 \begin{figure}
 	\begin{center}
-			\includegraphics[width=0.9\columnwidth]{./figures/scshot.png}
+			\includegraphics[width=0.9\columnwidth]{./figures/scshot.eps}
 	\end{center}
 	\caption{System At Work}
 	\label{fig:system}
@@ -329,7 +332,7 @@ For the collision spheres, the quality of the result can be assessed by the smoo
 
 \section{Conclusion and Future Work}
 \label{sec:5}
-The simulation framework is shown in Figure \ref{fig:system}. Both optimization and the simulation are performed on a high-end PC with Intel i7- and NVIDIA GeForce GTX560Ti. The maximum optimization time is 1.002 seconds, which is constrained by the frame rate of the depth sensor. The actual simulation runs at 600fps on 1920x1080 resolution. Body sizes are estimated with error rates less than 5\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
+The simulation software using optimized parameters with this algorithm is shown in Figure \ref{fig:system}. Both optimization and the simulation are performed on a high-end PC with Intel i7-2600 and NVIDIA GeForce GTX560Ti. The maximum optimization time is 1.002 seconds, which is constrained by the frame rate of the depth sensor. The actual simulation runs at 600fps on 1920x1080 resolution. Body sizes are estimated with error rates less than 4\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
 
 In future work, we would like to improve the quality of measurements by using data from the RGB sensor as well, as it provides valuable information. We would also like to provide more collision sphere information to the framework for better collision detection.
 
