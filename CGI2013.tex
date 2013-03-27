@@ -37,7 +37,7 @@ Advanced virtual fitting rooms show the apparel items either on the video of the
 We present a new approach to adjusting a virtual cloth and an avatar for a specific subject on the fly. Constraining the overall preprocessing time to one second, the clothing piece and the avatar are adjusted automatically and prepared for a physics powered virtual fitting room framework. 
 
 The rest of the paper is organized as follows. Section~\ref{sec:2} presents related work on virtual fitting rooms and depth sensors. 
-Section~\ref{sec:3} describes the proposed methodology, including the details of depth map optimization, body measurements, and temporal optimization. Section~\ref{sec:4} provides experimental results. Section~\ref{sec:5} gives conclusions and further research directions. 
+Section~\ref{sec:3} describes the proposed methodology, including the details of depth map filtering, body measurements, and temporal averaging. Section~\ref{sec:4} provides experimental results. Section~\ref{sec:5} gives conclusions and further research directions. 
 
 \section{Previous Work}
 \label{sec:2}
@@ -47,18 +47,20 @@ Advances in time-of-flight technology made depth sensors available at consumer-l
 
 One problem with depth sensors is the feeble quality and noisiness of the depth stream. This problem is analyzed in depth by Khoshelham~\cite{Khoshelham2012} and concluded that standard deviation reaches two centimeters in a measuring distance of three meters. Matyunin~\cite{Matyunin2011} attempted to improve the quality by filtering with additional information from the attached RGB camera.  
 
+A key purpose of both virtual and real fitting rooms is giving the customer the look and feel of a cloth wýth a specific size on the the user's body, so the user can choose the appropriate size for him. Embedding the feature of matching cltoh sizes with users requires capturing the users' body dimensions. More advanced frameworks even construct virtual avatars with input from only one depth sensor \cite{Cui2013,Cui2010}. On the other hand, despite these works provide higher detail avatars and keener measurements which might be more suitable for made-to-measure type of framework, the process requires too much time to work with a real-time 'fixed-size try-on' virtual fitting room application where simple body height and width measurements are sufficient.   
+
 \section{Methodology}
 \label{sec:3}
 Our objective is to acquire a set of simulation parameters from a human test-subject for a pre-modeled clothing mesh, which is to be displayed on a virtual avatar reflecting the body characteristics of the aforementioned subject.  The set of parameters for the simulation includes the body height and width, also the radii for the collision spheres, which have their centers coinciding with the joints of the virtual avatar's skeleton.
 The body width and height are then utilized to estimate the body size of the user, collision spheres are used in the dressing room simulation, to detect and resolve collision with the cloth particles.   
   
-\subsection{Depth Map Optimization}
+\subsection{Depth Map Filtering}
 \label{subsec:3.1} 
 The state-of the art time-of-flight (TOF) cameras still provide low resolution and quality output compared to current advanced RGB systems. The quality of the input depth map is a crucial factor on the overall performance of the system, therefore, we first wish to improve the quality of the depth map by applying canonical image optimization methods.
 
 In this approach, we utilize a TOF camera running with a middleware that provides a subject map. The subject map has the same size as the depth map. It has the same origin as the pixels of the depth map, either belonging to a subject or to the background.
 
-Let us take the input depth map $D$ as a $M \times N$ matrix. Initially, the user pixels from $D$ are extracted by a pixel-by-pixel comparison with the input user map. We are only interested in the one subject and $D_1$ represents the depth pixels of him, whereas $U_1$ is the bit map of the subject. Also, the non-subject pixels are set to the mean value of the user pixels, to set the matrix properly for the subsequent optimizations.
+Let us take the input depth map $D$ as a $M \times N$ matrix. Initially, the user pixels from $D$ are extracted by a pixel-by-pixel comparison with the input user map. We are only interested in the one subject and $D_1$ represents the depth pixels of him, whereas $U_1$ is the bit map of the subject. Also, the non-subject pixels are set to the mean value of the user pixels, to set the matrix properly for the subsequent filterings.
 
 \begin{equation}
 D_1=(D-(D \times U_1 )) \times \frac{1}{n} \times \sum\limits_{i=0}^n \left(\left(D \times U_1 \right)_i + d \times U_1 \right)
@@ -100,7 +102,7 @@ $depth_{\textit{average}}=depth_{\textit{sum}}/n_{\textit{user}}$ \;
   $D(i,j)=D(i-m:i+m, j-n:j+m) * \newline \hspace*{1.35cm} Gaussian(m,n,e)$\;
  }}}
 \Return{D}
-\caption{Depth Map Optimization}
+\caption{Depth Map Filtering}
 \label{algo:depth_patch}
 \end{algorithm}
 
@@ -195,7 +197,7 @@ measurement source column in the table represents the source for the estimation 
 \item
 The joint location represents that the measurement will take the input subject joint locations as the reference.
 \item 
-The depth map represents the measurement will instead perform measurements based on the pixel distribution in the optimized subject depth map. 
+The depth map represents the measurement will instead perform measurements based on the pixel distribution in the filtered subject depth map. 
 \end{itemize}
 They are often used together for better performance. Please note that some of these parameters are not standard to be used as relative references, such as the hip width. These parameters do not effect others in the estimation process and vica versa.
 
@@ -290,7 +292,7 @@ $y_{s}=\frac{\textit{\textit{height}}_{\textit{weighted}}}{\textit{\textit{heigh
 
 By now, we have acquired the required body dimensions and collision sphere parameters for a realistic simulation. 
 Yet, the measurements are performed on a filtered version of a depth sensor with high error rates. In order to overcome the noise and overall depth-sense faults, the prior measurements are repeated for the duration of one second, which corresponds to 30 frames of input depth map. 
-A considerably different approach here would be to employ the temporal optimization on the depth map instead of the measured parameters. We observe that the results suffer due to the motions of the subject because most subjects fails to keep their exact form for one second. To overcome these problems, we use temporal averaging that takes the mean of the specified parameters for the frames in one second. This step finalizes the parameters and delivers the required parameters for simulation environment synthesis. 
+A considerably different approach here would be to employ the temporal averaging on the depth map instead of the measured parameters. We observe that the results suffer due to the motions of the subject because most subjects fails to keep their exact form for one second. To overcome these problems, we use temporal averaging that takes the mean of the specified parameters for the frames in one second. This step finalizes the parameters and delivers the required parameters for simulation environment synthesis. 
 
 \begin{algorithm}
 \DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
@@ -310,17 +312,35 @@ $s_{\textit{final}}$  = \textrm{avg}(s)\;
 \end{algorithm}
 
 
+\section{Cloth Simulation Framework}
+\label{sec:5}
+The cloth simulation framework utilizes the propriety PhysX engine by Nvidia\cite{Kim2011}, with two major components as the cloth deformation and the collision detection. 
+
+The deformation algorithm is based on the Position Based Dynamics by \cite{Müllera2007}, calculating the position of the particles from their previous positions and applying constraints on mutual distance and angle. The approach is stable and efficient for real time applications. 
+
+Collision between the body and the cloth is detected using collision spheres and capsules(composed of two spheres) colocated with body joints and bones respectively (Figure \ref{fig:colliders}. The female body bone information is extracted from the input skeletal mesh class, and the colliding capsules are generated automatically after the measurement process, with the capsule pair indexes stored in a read only array.
+
+\begin{figure}
+	\begin{center}
+	\includegraphics[width=1.0\columnwidth]{./figures/colliders.eps}
+	\end{center}
+	\caption{The colliding human body with default radii}
+	\label{fig:colliders}
+\end{figure}
+
+The solution is performed for the trajectory of the capsule or sphere and the particle for frame interval. This approach is especially robust in fast motion, which is important since the motion is created in real time. The required solution is a 6th degree polynomial, which is approximated with quadratic equation. The solution is performed on the GPU, which increases the parallel performance greatly, allowing for frame rates of 600+fps. The cloth is discretized as a triangle mesh, and since the collision is only detected on vertices, the density must be high enough in order to avoid penetration at locations further from the vertices \cite{Kim2011,Tonge2010}.
+
 \section{Experiments}
-\label{sec:4}
-The optimization algorithm described in Section~~\ref{sec:4} is implemented on a virtual dressing framework, which provides a set of boiler plate features. The framework provides the testbench for experimentation, providing the following basic functions:
+\label{sec:5}
+The optimization algorithm described in Section~~\ref{sec:3} is implemented on the in-house developed virtual dressing framework, which acts as the testbench for experimentation, providing the following basic functions:
 
 \begin{itemize}
   \item 3D scene rendering and render cycle management, 
-  \item cloth simulation framework, and
-  \item depth sensor integration.
-\end{itemize} 
+  \item Physics Engine Integration
+  \item Depth sensor integration.
+\end{itemize}
 
-The optimization process runs after a subject is recognized, identified and calibrated for tracking. Following the parameter estimation, the virtual avatar and cloth are created and the simulation starts.
+The measurement process runs after a subject is recognized, identified and calibrated for tracking. Following the parameter estimation, the virtual avatar and cloth are created and the simulation starts.
 
 Table~\ref{tbl:body_results} presents the measurements of the body dimensions, as well as the errors and the standart deviations of the measurements in 30 frames for three subjects.  
 
@@ -339,7 +359,7 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 \label{tbl:body_results}
 \end{table} 
 
-The total time for the optimization algorithm do not exceed 1.005 seconds in any of the cases. Considering 1.0 seconds is the time for acquiring 30 frames of input from the depth sensor, it is safe to say that the proposed algorithm does not introduce any delays and problems for a real time application becuase it needs to run only once in the beginning of the simulation.
+The total time for the measurement algorithm do not exceed 1.005 seconds in any of the cases. Considering 1.0 seconds is the time for acquiring 30 frames of input from the depth sensor, it is safe to say that the proposed algorithm does not introduce any delays and problems for a real time application becuase it needs to run only once in the beginning of the simulation.
 
 For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of two dresses on a model with different postures generated with our implementation. 
 
@@ -374,7 +394,7 @@ For the collision spheres, the quality of the results can be assessed by the smo
 
 
 \section{Conclusion and Future Work}
-\label{sec:5}
+\label{sec:6}
 The simulation software using optimized parameters with this algorithm is shown in Figure~\ref{fig:system}. Both the optimization and simulation are performed on a high-end PC with Intel i7-2600 and NVIDIA GeForce GTX560Ti. The maximum optimization time is 1.002 seconds, which is constrained by the frame rate of the depth sensor. The actual simulation runs at 600 frames per second (fps) on $1920 \times 1080$ resolution. The body sizes are estimated with error rates less than 4\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
 
 As a future work, we would like to improve the quality of measurements by using data from an RGB sensor as well, as it provides valuable additional data. We would also like to provide more collision sphere data to the framework for better collision detection.
@@ -432,6 +452,21 @@ PrimeSense, Inc.: NITE Middleware - the Natural Interaction Engine. Available at
 
 \bibitem{Willis2012}
 Willis, B.: Body Proportions in Art. Wunderland Web Design (2013).
+
+\bibitem{Cui2013}
+Cui Y., Chang W., Nöll T., Stricker D., KinectAvatar: Fully Automatic Body Capture Using a Single Kinect [Online] (2013)
+
+\bibitem{Cui2010}
+Cui, Y., Schuon, S., Chan, D., Thrun, S., Theobalt, C.: 3D shape scanning with a time-of-flight camera.  IEEE Proc. CVPR.  p.1173	- 1180  (2010) 
+
+\bibitem{Kim2011}
+T.-Y. Kim. Character clothing in physx-3, 2011.
+
+\bibitem{Müllera2007}
+Müllera M., Heidelbergera B, Hennixa M., Ratcliff J.: Position Based Dynamics,  Journal of Visual Communication and Image Representation Volume 18, Issue 2, Pages 109–118 (2007)
+
+\bibitem{Tonge2010}
+Tonge, R.:Nvidia. Collision detection in physx, 2010
 
 \end{thebibliography}
 
