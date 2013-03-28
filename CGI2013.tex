@@ -36,10 +36,23 @@ Advanced virtual fitting rooms show the apparel items either on the video of the
 
 We present a novel virtual fitting room framework which provides all the basic feautures expected from such an application, along with enhancements in various aspects for higher realism. These enhancements include motion filtering, customized user scaling and physics engine.
 
-The rest of the paper is organized as follows. Section~\ref{sec:Related} presents related work on virtual fitting rooms and depth sensors. 
-Section~\ref{sec:Physics} explaines the cloth simulation framework and uses of the spheres and measurements. 
+The rest of the paper is organized as follows. Section~\ref{sec:Related} presents related work on virtual fitting rooms and depth sensors.
+Section~\ref{sec:Overall} provides the outline of the framework and explains the components. 
+Section~\ref{sec:Physics} explaines the cloth simulation engine and purposes of the user measurements. 
+Section~\ref{sec:Measurements} describes the proposed methodology, including the details of depth map filtering, body measurements, and temporal averaging.  
 Section~\ref{sec:Motion} illustrates the techniques used for coping with the inferior motion data problems.
-Section~\ref{sec:Measurements} describes the proposed methodology, including the details of depth map filtering, body measurements, and temporal averaging. Section~\ref{sec:Experiments} provides experimental results. Section~\ref{sec:Conclusions} gives conclusions and further research directions. 
+Section~\ref{sec:Experiments} provides experimental results. Section~\ref{sec:Conclusions} gives conclusions and further research directions. 
+
+
+
+\begin{figure*}
+	\centerline{
+	\includegraphics[width=2.0\columnwidth]{./figures/overall.eps}
+	}
+	\caption{The overall virtual dressing framework}
+	\label{fig:overall}
+\end{figure*}
+
 
 \section{Previous Work}
 \label{sec:Related}
@@ -51,7 +64,23 @@ One problem with depth sensors is the feeble quality and noisiness of the depth 
 
 A key purpose of both virtual and real fitting rooms is giving the customer the look and feel of a cloth with a specific size on the the user's body, so the user can choose the appropriate size for him. Embedding the feature of matching cloth sizes with users requires capturing the users' body dimensions. More advanced frameworks even construct virtual avatars with input from only one depth sensor \cite{Cui2013,Cui2010}. On the other hand, despite these works provide higher detail avatars and keener measurements which might be more suitable for made-to-measure type of framework, the process requires too much time to work with a real-time 'fixed-size try-on' virtual fitting room application where simple body height and width measurements are sufficient.   
 
-\section{Physics Framework}
+\section{Overall Framework}
+\label{sec:Overall}
+The main objective of a virtual dressing room is giving the user the ideo of how the apparel will look on him/her without actually trying it on. As in any simulation, the absolute reality is almost impossible to attain, although with garment simulation and depth sensing technologies, a substantial level of realism can be achieved.
+
+
+The flow diagram of our framework is given in Figure \ref{fig:overall}. The core functions of the framework are:
+
+\begin{itemize}
+  \item 3D scene rendering and render cycle management, 
+  \item Weighted Skinning and Skeletal Animation,
+  \item Depth sensor integration.
+\end{itemize}
+
+As these topics are considered boiler plate for such an application, they are not explained in detail in this paper. On the other hand, section \ref{sec:Physics} will give basic information about the embedded physics engine and explain its place within the overall program.  The sections \ref{sec:Motion} and \ref{sec:Measurements} will provide in-depth information and anaylsis of some of the features developed specifically for this particular application. 
+
+
+\section{Physics Engine}
 \label{sec:Physics}
 The cloth simulation framework utilizes the propriety PhysX engine by Nvidia\cite{Kim2011}, with two major components as the cloth deformation and the collision detection. 
 
@@ -70,47 +99,6 @@ Collision between the body and the cloth is detected using collision spheres and
 The solution is performed for the trajectory of the capsule or sphere and the particle for frame interval. This approach is especially robust in fast motion, which is important since the motion is created in real time. The required solution is a 6th degree polynomial, which is approximated with quadratic equation. The solution is performed on the GPU, which increases the parallel performance greatly, allowing for higher frame rates than 600 FPS. The cloth is discretized as a triangle mesh and the collision is only detected on vertices, therefore density must be high enough in order to avoid penetration at locations further from the vertices \cite{Kim2011,Tonge2010}. This issue can be resolved using the virtual particles for apparel meshes with lower resolution, where additional vertices are introduced at runtime for collision simulation\cite{Kim2011}.
 
 The acquired body measurements are used to estimate the locations of joints and bones, for collision sphere placement, whereas the radii are used directly for determining the sphere sizes. With both parameters scaled according to the user, various body types can be simulated realistically.
-
-\section{Motion Smoothing}
-\label{sec:Motion}
-Our framework utilizes a virtual 3d avatar to display and simulate the apparel models. The avatar imitates the motions of the actual user, using the orientation data acquired from the depth sensor middleware. However, application of the raw data from the sensor causes unnatural movements due to the noise in the sensor input, self-occlusions of the body and inadequate IK solvers.  In order to present a more realistic avatar animation, a series of filters and constraints are applied to the sensor data. 
-
-\subsection{Position Filtering}
-The most severe disruption of the self-occlusion problem takes place in the joint position acquisition. There is no possible way of acquiring the correct position of a limb when the sensor has no vision of it. However, the way humans move their limbs under normal conditions follow certain principles and trends which can be used to estimate the locations of occluded body parts. The nature of these motions, demonstrating traits similar to seasonal behavior make them suitable for a variety of filters\cite{Azimi2012}. We decided to go with the Holt-Winters Double Exponential smoothing \cite{Kalekar2004} as it comes with the middleware, easy to use and delivers good quality results with acceptable latency for the purposes of this application. 
-
-\subsection{Rotation Filtering and Constraints}
-The joint orientations are acquired from the sensor middleware directly, however the data is not smooth. Although the middleware enforces certain constraints (such as allowing only pitch rotations on Ulna), there are often significant gaps in the estimated angles which produce unnatural tremor-like movements on the avatar. Furthermore, there is no filtering of unnatural rotations which take place when an occluded body part is estimated to be in a wrong location. 
-
-The inferior quality of the orientation data is improved in two stages: applying another set of constraints on the joint data based on the natural limits of human bones, followed by as asymptotic smoothing of the joint angles to prevent the effect of gaps in the angles-see Figure\ref{fig:rotation-filter}. 
-
-\begin{figure*}
-	\centerline{
-	\includegraphics[width=2.0\columnwidth]{./figures/rotation-filter.eps}
-	}
-\caption{The row and filtered samples for Right Humerus Roll Angle}
-	\label{fig:rotation-filter}
-\end{figure*}
-
-
-\subsection{Bone Splitting}
-The lower sections of human limbs contain two parallel bones allowing the twisting rotation on the hands and feet. The configuration of bones allow all portions of the lower limb follow the bones in pitch and roll rotations, although the effect of yaw rotation decreases as it gets closer to the mid-section joint (elbow or knee). This effect is not possible to achieve with a single bone fore-arm representation, as specified in the highest level of detail in the H-ANIM standard \cite{HANIM}, using unified weights (same for all types of rotations, transformations and scaling) and linear skinning. On the other hand, applying a different set of weights for each possible transformation, rotation or scaling requires additional space and time which can be considered redundant as it is not going to be used in most of the skeleton and mesh and not implemented in most of the popular rendering engines. This problem is previously addressed by Kavan et. al\cite{Kavan2009}, proposing a method of introducing additional blending bones to simulate non-linear skinning, however the generalized approach is not suitable for a real time application with previously unknown motions. 
-
-As our only problematic bones for this particular case is the upper limbs, we employed a novel approach to solve this problem by introducing an additional bone connected in series for the upper limbs. The Humerus and Ulna bones are split halfway and the lower sections are labeled as Humerus-Extention and Ulna-Extention respectively. The vertex weights in the corresponding sections are divided linearly among two sections as seen in Figure XX. 
-
-weight figuru eklenmeli
-
-\begin{figure}
-	\begin{center}
-	\includegraphics[width=0.9\columnwidth]{./figures/fore-arm-single-bone.eps}
-	(a)
-	\includegraphics[width=0.9\columnwidth]{./figures/fore-arm-double-bone.eps}
-	(b)
-	\end{center}
-	\caption{Comparison of a -90$^\circ$ yaw rotation on the forearm with: (a) single and (b) double boned skinning.}
-	\label{fig:forearm-comparison}
-\end{figure}
-
-During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure \ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
 
 \section{Body Measurements}
 \label{sec:Measurements}
@@ -376,15 +364,54 @@ $s_{\textit{final}}$  = \textrm{avg}(s)\;
 \label{algo:temporal_averaging}
 \end{algorithm}
 
+
+\section{Motion Smoothing}
+\label{sec:Motion}
+Our framework utilizes a virtual 3d avatar to display and simulate the apparel models. The avatar imitates the motions of the actual user, using the orientation data acquired from the depth sensor middleware. However, application of the raw data from the sensor causes unnatural movements due to the noise in the sensor input, self-occlusions of the body and inadequate IK solvers.  In order to present a more realistic avatar animation, a series of filters and constraints are applied to the sensor data. 
+
+\subsection{Position Filtering}
+The most severe disruption of the self-occlusion problem takes place in the joint position acquisition. There is no possible way of acquiring the correct position of a limb when the sensor has no vision of it. However, the way humans move their limbs under normal conditions follow certain principles and trends which can be used to estimate the locations of occluded body parts. The nature of these motions, demonstrating traits similar to seasonal behavior make them suitable for a variety of filters\cite{Azimi2012}. We decided to go with the Holt-Winters Double Exponential smoothing \cite{Kalekar2004} as it comes with the middleware, easy to use and delivers good quality results with acceptable latency for the purposes of this application. 
+
+\subsection{Rotation Filtering and Constraints}
+The joint orientations are acquired from the sensor middleware directly, however the data is not smooth. Although the middleware enforces certain constraints (such as allowing only pitch rotations on Ulna), there are often significant gaps in the estimated angles which produce unnatural tremor-like movements on the avatar. Furthermore, there is no filtering of unnatural rotations which take place when an occluded body part is estimated to be in a wrong location. 
+
+\begin{figure*}
+	\centerline{
+	\includegraphics[width=2.0\columnwidth]{./figures/rotation-filter.eps}
+	}
+\caption{The row and filtered samples for Right Humerus Roll Angle}
+	\label{fig:rotation-filter}
+\end{figure*}
+
+The inferior quality of the orientation data is improved in two stages: applying another set of constraints on the joint data based on the natural limits of human bones, followed by as asymptotic smoothing of the joint angles to prevent the effect of gaps in the angles-see Figure\ref{fig:rotation-filter}. 
+
+
+
+
+
+\begin{figure}
+	\begin{center}
+	\includegraphics[width=1.0\columnwidth]{./figures/fore-arm-single-bone.eps}
+	(a)
+	\includegraphics[width=1.0\columnwidth]{./figures/fore-arm-double-bone.eps}
+	(b)
+	\end{center}
+	\caption{Comparison of a -90$^\circ$ yaw rotation on the forearm with: (a) single and (b) double boned skinning.}
+	\label{fig:forearm-comparison}
+\end{figure}
+
+\subsection{Bone Splitting}
+The lower sections of human limbs contain two parallel bones allowing the twisting rotation on the hands and feet. The configuration of bones allow all portions of the lower limb follow the bones in pitch and roll rotations, although the effect of yaw rotation decreases as it gets closer to the mid-section joint (elbow or knee). This effect is not possible to achieve with a single bone fore-arm representation, as specified in the highest level of detail in the H-ANIM standard \cite{HANIM}, using unified weights (same for all types of rotations, transformations and scaling) and linear skinning. On the other hand, applying a different set of weights for each possible transformation, rotation or scaling requires additional space and time which can be considered redundant as it is not going to be used in most of the skeleton and mesh and not implemented in most of the popular rendering engines. This problem is previously addressed by Kavan et. al\cite{Kavan2009}, proposing a method of introducing additional blending bones to simulate non-linear skinning, however the generalized approach is not suitable for a real time application with previously unknown motions. 
+
+As our only problematic bones for this particular case is the upper limbs, we employed a novel approach to solve this problem by introducing an additional bone connected in series for the upper limbs. The Humerus and Ulna bones are split halfway and the lower sections are labeled as Humerus-Extention and Ulna-Extention respectively. The vertex weights in the corresponding sections are divided linearly among two sections as seen in Figure XX. 
+
+weight figuru eklenmeli
+
+During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure \ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
+
 \section{Experiments}
 \label{sec:Experiments}
-The optimization algorithm described in Section~~\ref{sec:3} is implemented on the in-house developed virtual dressing framework, which acts as the testbench for experimentation, providing the following basic functions:
-
-\begin{itemize}
-  \item 3D scene rendering and render cycle management, 
-  \item Physics Engine Integration
-  \item Depth sensor integration.
-\end{itemize}
+The optimization algorithm described in Section~~\ref{sec:3} is implemented on the in-house developed virtual dressing framework, which acts as the testbench for experimentation. 
 
 The measurement process runs after a subject is recognized, identified and calibrated for tracking. Following the parameter estimation, the virtual avatar and cloth are created and the simulation starts.
 
