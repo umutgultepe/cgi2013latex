@@ -97,9 +97,18 @@ As our only problematic bones for this particular case is the upper limbs, we em
 
 weight figuru eklenmeli
 
-During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts see Figure XX.
+\begin{figure}
+	\begin{center}
+	\includegraphics[width=0.9\columnwidth]{./figures/fore-arm-single-bone.eps}
+	(a)
+	\includegraphics[width=0.9\columnwidth]{./figures/fore-arm-double-bone.eps}
+	(b)
+	\end{center}
+	\caption{Comparison of a -90$^\circ$ yaw rotation on the forearm with: (a) single and (b) double boned skinning.}
+	\label{fig:forearm-comparison}
+\end{figure}
 
-ornek resim figuru eklenmeli
+During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure \ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
 
 \section{Methodology}
 \label{sec:4}
