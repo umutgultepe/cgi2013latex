@@ -12,8 +12,8 @@
 \journalname{CGI2013} % The correct name will be entered by the editor
 \begin{document}
 
-\title{Cloth and Avatar Preparation for Virtual Fitting Rooms} 
-\subtitle{Real-time virtual fitting room with physics simulation}
+\title{Real-time Virtual Fitting Room Framework With Physics Simulation} 
+\subtitle{Application of Real-Time Motion Smoothing and User Measurement}
 \author{First Author \and Second Author}
 \institute{First Author \at F. Author Address \and Second Author \at S. Author Address}
 
@@ -24,38 +24,40 @@
 \maketitle
 
 \begin{abstract}
-We present a novel approach to adjusting a virtual cloth and an avatar with respect to a specific user for a virtual fitting room framework. The proposed method scales the cloth and avatar according to the subject's body dimensions and prepares the physics simulation and collision detection environment, with a total preprocessing time of one second, eliminating the requirement for long preprocessing times to achieve a realistic fitting experience.
+We present our novel virtual fitting room framework using a depth sensor, which provides a reslistic fitting experience with customized motion filters, size adjustments and physical simulation. The proposed scaling method adjusts the avatar and determines a specific apparel size, prepares the physics simulation and collision detection environment, with a total preprocessing time of one second, eliminating the requirement for long preprocessing times to achieve a realistic fitting experience. The real-time motion filters prevents unnatural artifacts due to the noise from depth sensor or self-occluded body parts.
 \keywords{virtual fitting room \and depth sensor \and character animation  \and motion capture  \and appearance capture}
 \end{abstract}
 
 \section{Introduction}
-\label{sec:1}
+\label{sec:Introduction}
 One of the most time-consuming stages of apparel shopping is trying the apparels on, which is not even possible in online stores. With the advances in augmented reality technologies, virtual fitting rooms are slowly taking their places in both real and virtual stores~\cite{Fitnect2012,Styku2013} to improve the quality of apparel trial experience while also making it faster.
 
 Advanced virtual fitting rooms show the apparel items either on the video of the user or on a virtual avatar, both scaled to reflect the user's body characteristics~\cite{FaceCake2013}. Some of them also employ physics-based garment simulation for a better fitting experience~\cite{Styku2013}.
 
-We present a new approach to adjusting a virtual cloth and an avatar for a specific subject on the fly. Constraining the overall preprocessing time to one second, the clothing piece and the avatar are adjusted automatically and prepared for a physics powered virtual fitting room framework. As opposed to works focusing on acquiring high-detail avatars of subjects for made-to measure applications, we focus on the speed of the overall algorithm for real-time purposes and acquire enough measurements for a 'fixed-size try-on' system.   
+We present a novel virtual fitting room framework which provides all the basic feautures expected from such an application, along with enhancements in various aspects for higher realism. These enhancements include motion filtering, customized user scaling and physics engine.
 
-The rest of the paper is organized as follows. Section~\ref{sec:2} presents related work on virtual fitting rooms and depth sensors. 
-Section~\ref{sec:3} explaines the cloth simulation framework and uses of the spheres and measurements. Section~\ref{sec:4} describes the proposed methodology, including the details of depth map filtering, body measurements, and temporal averaging. Section~\ref{sec:5} provides experimental results. Section~\ref{sec:6} gives conclusions and further research directions. 
+The rest of the paper is organized as follows. Section~\ref{sec:Related} presents related work on virtual fitting rooms and depth sensors. 
+Section~\ref{sec:Physics} explaines the cloth simulation framework and uses of the spheres and measurements. 
+Section~\ref{sec:Motion} illustrates the techniques used for coping with the inferior motion data problems.
+Section~\ref{sec:Measurements} describes the proposed methodology, including the details of depth map filtering, body measurements, and temporal averaging. Section~\ref{sec:Experiments} provides experimental results. Section~\ref{sec:Conclusions} gives conclusions and further research directions. 
 
 \section{Previous Work}
-\label{sec:2}
+\label{sec:Related}
 Virtual fitting rooms have been a research subject for more than a decade. Protopsaltou~\cite{Protopsaltou2002} has developed an internet based approach for virtual fitting rooms, although it was not real time and required marker based motion capture systems for animation. Zhang~\cite{Zhang2008} used a multi-camera system utilizing shell fitting space (SFS)~\cite{Cheung2005} techniques to build a real time intelligent fitting room. 
 
 Advances in time-of-flight technology made depth sensors available at consumer-level prices with better performance. This prompted a wave of research based on depth sensors in various fields, such as rehabilitation~\cite{Yao2011}, indoor modeling~\cite{Henry2012}, and medicine~\cite{Gallo2012}. Another topic which attracted significant attention from both researchers and companies is real-time virtual fitting rooms~\cite{Meng2010}. Giovanni~\cite{Giovanni2012} developed a virtual try-on system utilizing a calibrated set of Kinect and high definition cameras, while comparing the two state-of-the-art depth sensing software development kits (SDKs)-OpenNI~\cite{OpenNI2013} and Kinect for Windows~SDK~\cite{Microsoft2013}.
 
 One problem with depth sensors is the feeble quality and noisiness of the depth stream. This problem is analyzed in depth by Khoshelham~\cite{Khoshelham2012} and concluded that standard deviation reaches two centimeters in a measuring distance of three meters. Matyunin~\cite{Matyunin2011} attempted to improve the quality by filtering with additional information from the attached RGB camera.  
 
-A key purpose of both virtual and real fitting rooms is giving the customer the look and feel of a cloth wýth a specific size on the the user's body, so the user can choose the appropriate size for him. Embedding the feature of matching cltoh sizes with users requires capturing the users' body dimensions. More advanced frameworks even construct virtual avatars with input from only one depth sensor \cite{Cui2013,Cui2010}. On the other hand, despite these works provide higher detail avatars and keener measurements which might be more suitable for made-to-measure type of framework, the process requires too much time to work with a real-time 'fixed-size try-on' virtual fitting room application where simple body height and width measurements are sufficient.   
+A key purpose of both virtual and real fitting rooms is giving the customer the look and feel of a cloth with a specific size on the the user's body, so the user can choose the appropriate size for him. Embedding the feature of matching cloth sizes with users requires capturing the users' body dimensions. More advanced frameworks even construct virtual avatars with input from only one depth sensor \cite{Cui2013,Cui2010}. On the other hand, despite these works provide higher detail avatars and keener measurements which might be more suitable for made-to-measure type of framework, the process requires too much time to work with a real-time 'fixed-size try-on' virtual fitting room application where simple body height and width measurements are sufficient.   
 
 \section{Physics Framework}
-\label{sec:3}
+\label{sec:Physics}
 The cloth simulation framework utilizes the propriety PhysX engine by Nvidia\cite{Kim2011}, with two major components as the cloth deformation and the collision detection. 
 
 The deformation algorithm is based on the Position Based Dynamics by \cite{Müllera2007}, calculating the position of the particles from their previous positions and applying constraints on mutual distance and angle. The approach is stable and efficient for real time applications. 
 
-Collision between the body and the cloth is detected using collision spheres and capsules(composed of two spheres) colocated with body joints and bones respectively (Figure \ref{fig:colliders}. The female body bone information is extracted from the input skeletal mesh class, and the colliding capsules are generated automatically after the measurement process, with the capsule pair indexes stored in a read only array.
+Collision between the body and the cloth is detected using collision spheres and capsules(composed of two spheres) colocated with body joints and bones respectively (Figure \ref{fig:colliders}). The female body bone information is extracted from the input skeletal mesh class, and the colliding capsules are generated automatically after the measurement process, with the capsule pair indexes stored in a read only array.
 
 \begin{figure}
 	\begin{center}
@@ -65,13 +67,13 @@ Collision between the body and the cloth is detected using collision spheres and
 	\label{fig:colliders}
 \end{figure}
 
-The solution is performed for the trajectory of the capsule or sphere and the particle for frame interval. This approach is especially robust in fast motion, which is important since the motion is created in real time. The required solution is a 6th degree polynomial, which is approximated with quadratic equation. The solution is performed on the GPU, which increases the parallel performance greatly, allowing for frame rates of 600+fps. The cloth is discretized as a triangle mesh, and since the collision is only detected on vertices, the density must be high enough in order to avoid penetration at locations further from the vertices \cite{Kim2011,Tonge2010}.
+The solution is performed for the trajectory of the capsule or sphere and the particle for frame interval. This approach is especially robust in fast motion, which is important since the motion is created in real time. The required solution is a 6th degree polynomial, which is approximated with quadratic equation. The solution is performed on the GPU, which increases the parallel performance greatly, allowing for higher frame rates than 600 FPS. The cloth is discretized as a triangle mesh and the collision is only detected on vertices, therefore density must be high enough in order to avoid penetration at locations further from the vertices \cite{Kim2011,Tonge2010}. This issue can be resolved using the virtual particles for apparel meshes with lower resolution, where additional vertices are introduced at runtime for collision simulation\cite{Kim2011}.
 
 The acquired body measurements are used to estimate the locations of joints and bones, for collision sphere placement, whereas the radii are used directly for determining the sphere sizes. With both parameters scaled according to the user, various body types can be simulated realistically.
 
-\section{Avatar Animation}
-\label{sec:4}
-Our framework utilizes a virtual 3d avatar to display and simulate the apparel samples. The avatar imitates the motions of the actual user, using the orientation data acquired from the depth sensor middleware. However, application of the raw data from the sensor causes unnatural movements due to the noise in the sensor input, self-occlusions of the body and inadequate IK solvers.  In order to present a more realistic avatar animation, a series of filters and constraints are applied to the sensor data. 
+\section{Motion Smoothing}
+\label{sec:Motion}
+Our framework utilizes a virtual 3d avatar to display and simulate the apparel models. The avatar imitates the motions of the actual user, using the orientation data acquired from the depth sensor middleware. However, application of the raw data from the sensor causes unnatural movements due to the noise in the sensor input, self-occlusions of the body and inadequate IK solvers.  In order to present a more realistic avatar animation, a series of filters and constraints are applied to the sensor data. 
 
 \subsection{Position Filtering}
 The most severe disruption of the self-occlusion problem takes place in the joint position acquisition. There is no possible way of acquiring the correct position of a limb when the sensor has no vision of it. However, the way humans move their limbs under normal conditions follow certain principles and trends which can be used to estimate the locations of occluded body parts. The nature of these motions, demonstrating traits similar to seasonal behavior make them suitable for a variety of filters\cite{Azimi2012}. We decided to go with the Holt-Winters Double Exponential smoothing \cite{Kalekar2004} as it comes with the middleware, easy to use and delivers good quality results with acceptable latency for the purposes of this application. 
@@ -91,7 +93,7 @@ The inferior quality of the orientation data is improved in two stages: applying
 
 
 \subsection{Bone Splitting}
-The lower sections of human limbs contain two parallel bones allowing the twisting rotation on the hands and feet. The configuration of bones allow all portions of the lower limb follow the bones in pitch and roll rotations, although the effect of yaw rotation decreases as it gets closer to the mid-section joint (elbow or knee). This effect is not possible to achieve with a single bone fore-arm representation, as specified in the highest level of detail in the H-ANIM standard (HANIM), using unified weights (same for all types of rotations, transformations and scaling) and linear skinning. On the other hand, applying a different set of weights for each possible transformation, rotation or scaling requires additional work, storage and time which can be considered redundant as it is not going to be used in most of the skeleton and mesh and not implemented in most of the popular rendering engines. This problem is previously addressed by Kavan et. al\cite{Kavan2009}, proposing a method of introducing additional blending bones to simulate non-linear skinning, however the generalized approach is not suitable for a real time application with previously unknown motions. 
+The lower sections of human limbs contain two parallel bones allowing the twisting rotation on the hands and feet. The configuration of bones allow all portions of the lower limb follow the bones in pitch and roll rotations, although the effect of yaw rotation decreases as it gets closer to the mid-section joint (elbow or knee). This effect is not possible to achieve with a single bone fore-arm representation, as specified in the highest level of detail in the H-ANIM standard \cite{HANIM}, using unified weights (same for all types of rotations, transformations and scaling) and linear skinning. On the other hand, applying a different set of weights for each possible transformation, rotation or scaling requires additional space and time which can be considered redundant as it is not going to be used in most of the skeleton and mesh and not implemented in most of the popular rendering engines. This problem is previously addressed by Kavan et. al\cite{Kavan2009}, proposing a method of introducing additional blending bones to simulate non-linear skinning, however the generalized approach is not suitable for a real time application with previously unknown motions. 
 
 As our only problematic bones for this particular case is the upper limbs, we employed a novel approach to solve this problem by introducing an additional bone connected in series for the upper limbs. The Humerus and Ulna bones are split halfway and the lower sections are labeled as Humerus-Extention and Ulna-Extention respectively. The vertex weights in the corresponding sections are divided linearly among two sections as seen in Figure XX. 
 
@@ -110,10 +112,12 @@ weight figuru eklenmeli
 
 During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure \ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
 
-\section{Methodology}
-\label{sec:4}
-Our objective is to acquire a set of simulation parameters from a human test-subject for a pre-modeled clothing mesh, which is to be displayed on a virtual avatar reflecting the body characteristics of the aforementioned subject.  The set of parameters for the simulation includes the body height and width, also the radii for the collision spheres, which have their centers coinciding with the joints of the virtual avatar's skeleton.
-The body width and height are then utilized to estimate the body size of the user, collision spheres are used in the dressing room simulation, to detect and resolve collision with the cloth particles.   
+\section{Body Measurements}
+\label{sec:Measurements}
+For a realistic fitting experience, another requirement is acquiring a set of simulation parameters from a human test-subject for a pre-modeled apparel mesh, which is to be displayed on a virtual avatar reflecting the body characteristics of the aforementioned subject.  The set of parameters for the simulation includes the body height and width, also the radii for the collision spheres, which have their centers coinciding with the joints of the virtual avatar's skeleton.
+The body width and height are then utilized to estimate the body size of the user, collision spheres are used in the dressing room simulation, to detect and resolve collision with the cloth particles.
+
+As opposed to works focusing on acquiring high-detail avatars of subjects for made-to measure applications, we focus on the speed of the overall algorithm for real-time purposes and acquire enough measurements for a 'fixed-size try-on' system.   
   
 \subsection{Depth Map Filtering}
 \label{subsec:4.1} 
@@ -168,7 +172,7 @@ $depth_{\textit{average}}=depth_{\textit{sum}}/n_{\textit{user}}$ \;
 \end{algorithm}
 
 \subsection{Body Measurement}
-\label{subsec:4ç2} 
+\label{subsec:4.2} 
 
 By now, we have an optimized depth map, which is ready for performing key body dimension measurements. The key dimensions are handled in two groups: the collision sphere radii, which are used for the collision detection in the simulation, and the height and width parameters, which are used to determine to size of the apparel. 
 
@@ -373,7 +377,7 @@ $s_{\textit{final}}$  = \textrm{avg}(s)\;
 \end{algorithm}
 
 \section{Experiments}
-\label{sec:5}
+\label{sec:Experiments}
 The optimization algorithm described in Section~~\ref{sec:3} is implemented on the in-house developed virtual dressing framework, which acts as the testbench for experimentation, providing the following basic functions:
 
 \begin{itemize}
@@ -436,7 +440,7 @@ For the collision spheres, the quality of the results can be assessed by the smo
 
 
 \section{Conclusion and Future Work}
-\label{sec:6}
+\label{sec:Conclusions}
 The simulation software using optimized parameters with this algorithm is shown in Figure~\ref{fig:system}. Both the optimization and simulation are performed on a high-end PC with Intel i7-2600 and NVIDIA GeForce GTX560Ti. The maximum optimization time is 1.002 seconds, which is constrained by the frame rate of the depth sensor. The actual simulation runs at 600 frames per second (fps) on $1920 \times 1080$ resolution. The body sizes are estimated with error rates less than 4\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
 
 As a future work, we would like to improve the quality of measurements by using data from an RGB sensor as well, as it provides valuable additional data. We would also like to provide more collision sphere data to the framework for better collision detection.
@@ -457,6 +461,9 @@ Protopsaltou, D., Luible, C., Arevalo-Poizat, M., Magnenat-Thalmann, N., A Body 
 \bibitem{Zhang2008}
 Zhang, W., Matsumoto, T., Liu, J., Chu, M., and Begole, B.: An Intelligent Fitting Room Using Multi-Camera Perception. Proceedings of the 13th International Conference on Intelligent User Interfaces (IUI '08). ACM, New York, NY, USA, 60-69 (2008).
 
+\bibitem{Giovanni2012}
+Giovanni, S., Choi, Y.C., Huang J., Tat K.E. and Yin, K.: Virtual Try-On Using Kinect and HD Camera. MIG, volume 7660 of Lecture Notes in Computer Science, page 55-65. Springer, (2012)
+
 \bibitem{Cheung2005}
 Cheung, K.-M., Baker, S., Kanade, T.: Shape-From-Silhouette Across Time, Part II: Applications to Human Modeling and Markerless Motion Tracking, 
 International Journal of Computer Vision. 63(2), 225-245 (2005).
@@ -473,9 +480,6 @@ Proceedings of the 24th International Symposium on Computer-Based Medical System
 
 \bibitem{Meng2010}
 Meng, Y., Mok, P.Y., Jin, X.: Interactive Virtual Try-on Clothing Design Systems. Computer-Aided Design, 42(4), 310–321 (2010).
-
-\bibitem{Giovanni2012}
-Giovanni, S., Choi, Y.C., Huang, J., Tat, K.E., Yin, K.K.: Virtual Try-On Using Kinect and HD Camera. Lecture Notes in Computer Science, 7660, 55-65 (2012).
 
 \bibitem{OpenNI2013}
 OpenNI Consortium: OpenNI - The Standard Framework for 3D Sensing. Available at \verb+http://www.openni.org/+ (2013).
@@ -519,7 +523,8 @@ Kalekar, Prajakta S.: Time series forecasting using Holt-Winters exponential smo
 \bibitem{Kavan2009}
 Kavan, L., Collins, S., O'Sullivan ,C.: Automatic linearization of nonlinear skinning. (I3D '09). ACM, New York, NY, USA, 49-56 (2009)
 
-
+\bibitem {HANIM}
+H-Anim Web Site. www.h-anim.org
 
 \end{thebibliography}
 
