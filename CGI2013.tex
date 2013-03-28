@@ -49,8 +49,7 @@ One problem with depth sensors is the feeble quality and noisiness of the depth 
 
 A key purpose of both virtual and real fitting rooms is giving the customer the look and feel of a cloth wýth a specific size on the the user's body, so the user can choose the appropriate size for him. Embedding the feature of matching cltoh sizes with users requires capturing the users' body dimensions. More advanced frameworks even construct virtual avatars with input from only one depth sensor \cite{Cui2013,Cui2010}. On the other hand, despite these works provide higher detail avatars and keener measurements which might be more suitable for made-to-measure type of framework, the process requires too much time to work with a real-time 'fixed-size try-on' virtual fitting room application where simple body height and width measurements are sufficient.   
 
-
-\section{Simulation Framework}
+\section{Physics Framework}
 \label{sec:3}
 The cloth simulation framework utilizes the propriety PhysX engine by Nvidia\cite{Kim2011}, with two major components as the cloth deformation and the collision detection. 
 
@@ -70,13 +69,45 @@ The solution is performed for the trajectory of the capsule or sphere and the pa
 
 The acquired body measurements are used to estimate the locations of joints and bones, for collision sphere placement, whereas the radii are used directly for determining the sphere sizes. With both parameters scaled according to the user, various body types can be simulated realistically.
 
+\section{Avatar Animation}
+\label{sec:4}
+Our framework utilizes a virtual 3d avatar to display and simulate the apparel samples. The avatar imitates the motions of the actual user, using the orientation data acquired from the depth sensor middleware. However, application of the raw data from the sensor causes unnatural movements due to the noise in the sensor input, self-occlusions of the body and inadequate IK solvers.  In order to present a more realistic avatar animation, a series of filters and constraints are applied to the sensor data. 
+
+\subsection{Position Filtering}
+The most severe disruption of the self-occlusion problem takes place in the joint position acquisition. There is no possible way of acquiring the correct position of a limb when the sensor has no vision of it. However, the way humans move their limbs under normal conditions follow certain principles and trends which can be used to estimate the locations of occluded body parts. The nature of these motions, demonstrating traits similar to seasonal behavior make them suitable for a variety of filters\cite{Azimi2012}. We decided to go with the Holt-Winters Double Exponential smoothing \cite{Kalekar2004} as it comes with the middleware, easy to use and delivers good quality results with acceptable latency for the purposes of this application. 
+
+\subsection{Rotation Filtering and Constraints}
+The joint orientations are acquired from the sensor middleware directly, however the data is not smooth. Although the middleware enforces certain constraints (such as allowing only pitch rotations on Ulna), there are often significant gaps in the estimated angles which produce unnatural tremor-like movements on the avatar. Furthermore, there is no filtering of unnatural rotations which take place when an occluded body part is estimated to be in a wrong location. 
+
+The inferior quality of the orientation data is improved in two stages: applying another set of constraints on the joint data based on the natural limits of human bones, followed by as asymptotic smoothing of the joint angles to prevent the effect of gaps in the angles-see Figure\ref{fig:rotation-filter}. 
+
+\begin{figure*}
+	\centerline{
+	\includegraphics[width=2.0\columnwidth]{./figures/rotation-filter.eps}
+	}
+\caption{The row and filtered samples for Right Humerus Roll Angle}
+	\label{fig:rotation-filter}
+\end{figure*}
+
+
+\subsection{Bone Splitting}
+The lower sections of human limbs contain two parallel bones allowing the twisting rotation on the hands and feet. The configuration of bones allow all portions of the lower limb follow the bones in pitch and roll rotations, although the effect of yaw rotation decreases as it gets closer to the mid-section joint (elbow or knee). This effect is not possible to achieve with a single bone fore-arm representation, as specified in the highest level of detail in the H-ANIM standard (HANIM), using unified weights (same for all types of rotations, transformations and scaling) and linear skinning. On the other hand, applying a different set of weights for each possible transformation, rotation or scaling requires additional work, storage and time which can be considered redundant as it is not going to be used in most of the skeleton and mesh and not implemented in most of the popular rendering engines. This problem is previously addressed by Kavan et. al\cite{Kavan2009}, proposing a method of introducing additional blending bones to simulate non-linear skinning, however the generalized approach is not suitable for a real time application with previously unknown motions. 
+
+As our only problematic bones for this particular case is the upper limbs, we employed a novel approach to solve this problem by introducing an additional bone connected in series for the upper limbs. The Humerus and Ulna bones are split halfway and the lower sections are labeled as Humerus-Extention and Ulna-Extention respectively. The vertex weights in the corresponding sections are divided linearly among two sections as seen in Figure XX. 
+
+weight figuru eklenmeli
+
+During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts see Figure XX.
+
+ornek resim figuru eklenmeli
+
 \section{Methodology}
 \label{sec:4}
 Our objective is to acquire a set of simulation parameters from a human test-subject for a pre-modeled clothing mesh, which is to be displayed on a virtual avatar reflecting the body characteristics of the aforementioned subject.  The set of parameters for the simulation includes the body height and width, also the radii for the collision spheres, which have their centers coinciding with the joints of the virtual avatar's skeleton.
 The body width and height are then utilized to estimate the body size of the user, collision spheres are used in the dressing room simulation, to detect and resolve collision with the cloth particles.   
   
 \subsection{Depth Map Filtering}
-\label{subsec:4ç1} 
+\label{subsec:4.1} 
 The state-of the art time-of-flight (TOF) cameras still provide low resolution and quality output compared to current advanced RGB systems. The quality of the input depth map is a crucial factor on the overall performance of the system, therefore, we first wish to improve the quality of the depth map by applying canonical image optimization methods.
 
 In this approach, we utilize a TOF camera running with a middleware that provides a subject map. The subject map has the same size as the depth map. It has the same origin as the pixels of the depth map, either belonging to a subject or to the background.
@@ -469,6 +500,17 @@ Müllera M., Heidelbergera B, Hennixa M., Ratcliff J.: Position Based Dynamics,  
 
 \bibitem{Tonge2010}
 Tonge, R.:Nvidia. Collision detection in physx, 2010
+
+\bibitem{Azimi2012}
+Azimi M.: Skeletal Joint Smoothing White Paper Available at http://msdn.microsoft.com/en-us/library/jj131429.aspx [Online] (2012)
+
+\bibitem{Kalekar2004}
+Kalekar, Prajakta S.: Time series forecasting using Holt-Winters exponential smoothing. Kanwal Rekhi School of Information Technology (2004).
+
+\bibitem{Kavan2009}
+Kavan, L., Collins, S., O'Sullivan ,C.: Automatic linearization of nonlinear skinning. (I3D '09). ACM, New York, NY, USA, 49-56 (2009)
+
+
 
 \end{thebibliography}
 
