@@ -43,17 +43,6 @@ Section~\ref{sec:Measurements} describes the proposed methodology, including the
 Section~\ref{sec:Motion} illustrates the techniques used for coping with the inferior motion data problems.
 Section~\ref{sec:Experiments} provides experimental results. Section~\ref{sec:Conclusions} gives conclusions and further research directions. 
 
-
-
-\begin{figure*}
-	\centerline{
-	\includegraphics[width=2.0\columnwidth]{./figures/overall.eps}
-	}
-	\caption{The overall virtual dressing framework}
-	\label{fig:overall}
-\end{figure*}
-
-
 \section{Previous Work}
 \label{sec:Related}
 Virtual fitting rooms have been a research subject for more than a decade. Protopsaltou~\cite{Protopsaltou2002} has developed an internet based approach for virtual fitting rooms, although it was not real time and required marker based motion capture systems for animation. Zhang~\cite{Zhang2008} used a multi-camera system utilizing shell fitting space (SFS)~\cite{Cheung2005} techniques to build a real time intelligent fitting room. 
@@ -68,6 +57,13 @@ A key purpose of both virtual and real fitting rooms is giving the customer the 
 \label{sec:Overall}
 The main objective of a virtual dressing room is giving the user the ideo of how the apparel will look on him/her without actually trying it on. As in any simulation, the absolute reality is almost impossible to attain, although with garment simulation and depth sensing technologies, a substantial level of realism can be achieved.
 
+\begin{figure*}
+	\centerline{
+	\includegraphics[width=2.0\columnwidth]{./figures/overall.eps}
+	}
+	\caption{The overall virtual dressing framework}
+	\label{fig:overall}
+\end{figure*}
 
 The flow diagram of our framework is given in Figure \ref{fig:overall}. The core functions of the framework are:
 
@@ -385,8 +381,24 @@ The joint orientations are acquired from the sensor middleware directly, however
 
 The inferior quality of the orientation data is improved in two stages: applying another set of constraints on the joint data based on the natural limits of human bones, followed by as asymptotic smoothing of the joint angles to prevent the effect of gaps in the angles-see Figure\ref{fig:rotation-filter}. 
 
+\subsection{Bone Splitting}
+The lower sections of human limbs contain two parallel bones allowing the twisting rotation on the hands and feet. The configuration of bones allow all portions of the lower limb follow the bones in pitch and roll rotations, although the effect of yaw rotation decreases as it gets closer to the mid-section joint (elbow or knee). This effect is not possible to achieve with a single bone fore-arm representation, as specified in the highest level of detail in the H-ANIM standard \cite{HANIM}, using unified weights (same for all types of rotations, transformations and scaling) and linear skinning. On the other hand, applying a different set of weights for each possible transformation, rotation or scaling requires additional space and time which can be considered redundant as it is not going to be used in most of the skeleton and mesh and not implemented in most of the popular rendering engines. This problem is previously addressed by Kavan et. al\cite{Kavan2009}, proposing a method of introducing additional blending bones to simulate non-linear skinning, however the generalized approach is not suitable for a real time application with previously unknown motions. 
+
+As our only problematic bones for this particular case is the upper limbs, we employed a novel approach to solve this problem by introducing an additional bone connected in series for the upper limbs. The Humerus and Ulna bones are split halfway and the lower sections are labeled as Humerus-Extention and Ulna-Extention respectively. The vertex weights in the corresponding sections are divided linearly among two sections as seen in Figure \ref{fig:forearm-weights}. 
+
+\begin{figure}
+	\begin{center}
+	\includegraphics[width=1.0\columnwidth]{./figures/ulna-weight.eps}
+	(a)
+	\includegraphics[width=1.0\columnwidth]{./figures/ulna-extent-weight.eps}
+	(b)
+	\end{center}
+	\caption{The vertex weights for: (a) upper ulna and (b) lower ulna bone.}
+	\label{fig:forearm-weights}
+\end{figure}
 
 
+During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure \ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
 
 
 \begin{figure}
@@ -400,14 +412,7 @@ The inferior quality of the orientation data is improved in two stages: applying
 	\label{fig:forearm-comparison}
 \end{figure}
 
-\subsection{Bone Splitting}
-The lower sections of human limbs contain two parallel bones allowing the twisting rotation on the hands and feet. The configuration of bones allow all portions of the lower limb follow the bones in pitch and roll rotations, although the effect of yaw rotation decreases as it gets closer to the mid-section joint (elbow or knee). This effect is not possible to achieve with a single bone fore-arm representation, as specified in the highest level of detail in the H-ANIM standard \cite{HANIM}, using unified weights (same for all types of rotations, transformations and scaling) and linear skinning. On the other hand, applying a different set of weights for each possible transformation, rotation or scaling requires additional space and time which can be considered redundant as it is not going to be used in most of the skeleton and mesh and not implemented in most of the popular rendering engines. This problem is previously addressed by Kavan et. al\cite{Kavan2009}, proposing a method of introducing additional blending bones to simulate non-linear skinning, however the generalized approach is not suitable for a real time application with previously unknown motions. 
 
-As our only problematic bones for this particular case is the upper limbs, we employed a novel approach to solve this problem by introducing an additional bone connected in series for the upper limbs. The Humerus and Ulna bones are split halfway and the lower sections are labeled as Humerus-Extention and Ulna-Extention respectively. The vertex weights in the corresponding sections are divided linearly among two sections as seen in Figure XX. 
-
-weight figuru eklenmeli
-
-During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure \ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
 
 \section{Experiments}
 \label{sec:Experiments}
