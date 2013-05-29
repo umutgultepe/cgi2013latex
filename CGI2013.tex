@@ -47,11 +47,11 @@ Section~\ref{sec:Experiments} provides experimental results. Section~\ref{sec:Co
 \label{sec:Related}
 Virtual fitting rooms have been a research subject for more than a decade. Protopsaltou~\cite{Protopsaltou2002} developed an Internet-based approach for virtual fitting rooms, although it was not real time and required marker-based motion capture systems for animation. Zhang~\cite{Zhang2008} used a multi-camera system utilizing shell fitting space (SFS)~\cite{Cheung2005} techniques to build a real time intelligent fitting room. 
 
-Advances in time-of-flight technology made depth sensors available at consumer-level prices with better performance. This prompted a wave of research based on depth sensors in various fields, such as rehabilitation~\cite{Yao2011}, indoor modeling~\cite{Henry2012}, and medicine~\cite{Gallo2012}. Another topic that attracted significant attention from both researchers and companies is real-time virtual fitting rooms~\cite{Meng2010}. Giovanni~\cite{Giovanni2012} developed a virtual try-on system utilizing a calibrated set of Kinect and high definition cameras, while comparing the two state-of-the-art depth sensing software development kits (SDKs)-OpenNI~\cite{OpenNI2013} and Kinect for Windows~SDK~\cite{Microsoft2013}.
+Advances in time-of-flight technology made depth sensors available at consumer-level prices with better performance. This prompted a wave of research based on depth sensors in various fields, such as rehabilitation~\cite{Yao2011}, indoor modeling~\cite{Henry2012}, and medicine~\cite{Gallo2012}. Another topic that attracted significant attention from both researchers and companies is real-time virtual fitting rooms~\cite{Meng2010}. Giovanni~\cite{Giovanni2012} developed a virtual try-on system utilizing a calibrated set of Kinect and high definition cameras, while comparing the two state-of-the-art depth sensing software development kits (SDKs)-OpenNI~\cite{OpenNI2013} and Kinect for Windows~SDK~\cite{Microsoft2013}. While most frameworks utilize garment meshes with physics simulation \cite{Styku2013,Fitnect2012}, another intriguing approach is using a pre-recorded apparel image database, from which the images are superpositioned onto the RGB video of the user\cite{Zhou2012,Hauswiesner2013}. 
 
 One problem with depth sensors is the feeble quality and noisiness of the depth stream. This problem is analyzed in depth by Khoshelham~\cite{Khoshelham2012} and concluded that the standard deviation reaches two centimeters in a measuring distance of three meters. Matyunin~\cite{Matyunin2011} attempted to improve the quality by filtering with additional information from the attached RGB camera.  
 
-A key purpose of both virtual and real fitting rooms is giving the customer the look and feel of a cloth with a specific size on the the user's body, so the user can choose the appropriate size for him. Embedding the feature of matching cloth sizes with users requires capturing the users' body dimensions. More advanced frameworks even construct virtual avatars with input from only one depth sensor \cite{Cui2013,Cui2010}. On the other hand, despite these works provide higher detail avatars and keener measurements, which might be more suitable for made-to-measure type of framework, the process requires too much time to work with a real-time 'fixed-size try-on' virtual fitting room application where simple body height and width measurements are sufficient.   
+A key purpose of both virtual and real fitting rooms is giving the customer the look and feel of a cloth with a specific size on the the user's body, so the user can choose the appropriate size for him. Embedding the feature of matching cloth sizes with users requires capturing the users' body dimensions. More advanced frameworks even construct virtual avatars with input from only one depth sensor \cite{Cui2013,Cui2010}. On the other hand, despite these works provide higher detail avatars and keener measurements, which might be more suitable for made-to-measure type of framework, the process requires too much time to work with a real-time 'fixed-size try-on' virtual fitting room application where simple body height and width measurements are sufficient. These applications require a faster approach along with a specialized garment design framework such as the work of Yasseen et al.\cite{Yasseen2013} or Meng et al. \cite{Meng2010}. A recent study \cite{Kim2013} shows that such appliations are well-recieved by public and have potential commercial uses.     
 
 \section{Overall Framework}
 \label{sec:Overall}
@@ -398,7 +398,7 @@ As our only problematic bones for this particular case is the upper limbs, we em
 \end{figure}
 
 
-During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively.. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure \ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
+During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone respectively. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure \ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
 
 
 \begin{figure}
@@ -573,6 +573,21 @@ Kavan, L., Collins, S., O'Sullivan ,C.: Automatic linearization of nonlinear ski
 
 \bibitem {HANIM}
 H-Anim: Humanoid Animation Working Group. Available at \verb+http://www.h-anim.org+ (2013).
+
+\bibitem {Yasseen2013}
+Z. Yasseen, A. Nasri, W. Boukaram, P. Volino, N. Magnenat-Thalmann, Sketch-based garment design with quad meshes, Computer-Aided Design, Volume 45, Issue 2, February 2013, Pages 562-567,
+
+\bibitem{Kim2013}
+Kim, Dong-Eun, and Karen LaBat. "Consumer experience in using 3D virtual garment simulation technology." Journal of The Textile Institute ahead-of-print (2013): 1-11.
+
+\bibitem{Meng2010}
+Meng, Yuwei, P. Y. Mok, and Xiaogang Jin. "Interactive virtual try-on clothing design systems." Computer-Aided Design 42.4 (2010): 310-321.
+
+\bibitem{Zhou2012}
+Zhenglong Zhou, Bo Shu, Shaojie Zhuo, Xiaoming Deng, Ping Tan, and Stephen Lin. 2012. Image-based clothes animation for virtual fitting. In SIGGRAPH Asia 2012 Technical Briefs (SA '12). ACM, New York, NY, USA, , Article 33 , 4 pages.
+
+\bibitem{Hauswiesner2013}
+Hauswiesner, Stefan, Matthias Straka, and Gerhard Reitmayr. "Virtual Try-On Through Image-based Rendering." (2013): 1-1.
 
 \end{thebibliography}
 
