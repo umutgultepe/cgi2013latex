@@ -439,16 +439,19 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 \label{tbl:body_results}
 \end{table} 
 
+
+
 \begin{table}
 \begin{center}
-\begin{tabular}{|c|c|c|} 
-\hline
-  & Our Approach & Giovanni et al.\cite{Giovanni2012} \\ \hline
-  Error Average  & 2.13 \% & 4 \% \\ \hline
-  Error Deviation & 1.2 \%  & 3 \% \\ \hline
+\begin{tabular}{|c|c|c|c|c|} 
+\hline 
+  & \rotatebox{90}{Error Average} & \rotatebox{90}{Error Deviation} & \rotatebox{90}{Duration} & \rotatebox{90}{Estimation} \\ \hline
+  Our Approach & 2.13 \%  & 1.2 \%  & 1 & Fixed \\ \hline 
+  Giovanni et al.\cite{Giovanni2012}  & 4 \% & 3 \% & 1 & None \\ \hline
+  Samejima et al.\cite{Samejima2012}  & 6.72 \% & 4.68 \% & n/a & PCA \\ \hline
 \end{tabular}
 \end{center}
-\caption{Performance comparison with \cite{Giovanni2012} regarding height measurements.}
+\caption{Performance comparison with \cite{Giovanni2012,Samejima2012} regarding height measurements.}
 \label{tbl:performance_compare}
 \end{table} 
 The total time for the measurement algorithm do not exceed 1.005 seconds in any of the cases. Considering 1.0 seconds is the time for acquiring 30 frames of input from the depth sensor, it is safe to say that the proposed algorithm does not introduce any delays and problems for a real time application because it needs to run only once in the beginning of the simulation.
@@ -456,30 +459,30 @@ The total time for the measurement algorithm do not exceed 1.005 seconds in any 
 For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of two dresses on a model with different postures generated with our implementation. 
 
 \begin{figure}
-	\begin{center}
+	\begin{center} 
 			\includegraphics[width=1.0\columnwidth]{./figures/scshot.eps}
 	\end{center}
 	\caption{An example depth map data and the corresponding posture of the subject with a virtual cloth on it.}
 	\label{fig:system}
 \end{figure}
  
-\begin{figure*}
+\begin{figure*} 
 	\centerline{
-	\includegraphics[width=0.50\columnwidth]{./figures/kimono1.eps}
-	\includegraphics[width=0.50\columnwidth]{./figures/kimono2.eps}
-	\includegraphics[width=0.50\columnwidth]{./figures/kimono3.eps}
-	\includegraphics[width=0.50\columnwidth]{./figures/kimono4.eps}
+	\includegraphics[width=0.50\columnwidth]{./figures/sundress-1.eps}
+	\includegraphics[width=0.50\columnwidth]{./figures/sundress-2.eps}
+	\includegraphics[width=0.50\columnwidth]{./figures/sundress-3.eps}
+	\includegraphics[width=0.50\columnwidth]{./figures/sundress-4.eps}
 	}
 	\centerline{(a)}
 	\centerline{\ }
 	\centerline{
-	\includegraphics[width=0.50\columnwidth]{./figures/sundress1.eps}
-	\includegraphics[width=0.50\columnwidth]{./figures/sundress2.eps}
-	\includegraphics[width=0.50\columnwidth]{./figures/sundress3.eps}
-	\includegraphics[width=0.50\columnwidth]{./figures/sundress4.eps}
+	\includegraphics[width=0.50\columnwidth]{./figures/fligh-suit-1.eps}
+	\includegraphics[width=0.50\columnwidth]{./figures/fligh-suit-2.eps}
+	\includegraphics[width=0.50\columnwidth]{./figures/fligh-suit-3.eps}
+	\includegraphics[width=0.50\columnwidth]{./figures/fligh-suit-4.eps}
 	}
 	\centerline{(b)}
-	\caption{Examples of different dresses on a model with different postures: (a) kimono and (b) sun dress.}
+	\caption{Examples of different dresses on a model with different postures: (a) sun dress and (b) flight suit.}
 	\label{fig:examples}
 \end{figure*}
 
@@ -588,6 +591,9 @@ Zhenglong Zhou, Bo Shu, Shaojie Zhuo, Xiaoming Deng, Ping Tan, and Stephen Lin. 
 
 \bibitem{Hauswiesner2013}
 Hauswiesner, Stefan, Matthias Straka, and Gerhard Reitmayr. "Virtual Try-On Through Image-based Rendering." (2013): 1-1.
+
+\bibitem{Samejima2012}
+Samejima, Ippei, et al. "A body dimensions estimation method of subject from a few measurement items using KINECT." Systems, Man, and Cybernetics (SMC), 2012 IEEE International Conference on. IEEE, 2012.
 
 \end{thebibliography}
 
