@@ -1,5 +1,5 @@
 #TeXlipse project settings
-#Wed Mar 27 16:01:44 EET 2013
+#Tue Jun 04 10:44:20 EEST 2013
 markTmpDer=true
 builderNum=2
 outputDir=
@@ -8,7 +8,7 @@ bibrefDir=
 outputFormat=pdf
 tempDir=tmp
 mainTexFile=CGI2013.tex
-outputFile=template_CGIconf.pdf
+outputFile=CGI2013.pdf
 langSpell=en
 markDer=true
 srcDir=
