@@ -115,7 +115,7 @@ in order to overcome the high noise of the depth sensor. However, temporal
 averaging does not prove to be sufficient because unnatural movements take
 place due to limited recognition capabilities and self-occlusion.
 Therefore we implemented customized joint angle filters, along with bone
-splitting to let limbs twist in a more natural way.
+splitting to let limbs twist in a more natural way. We also employ filtering on hip and knee joints to overcome the footskating problem.
 
 The cloth pieces to be fitted on the user's avatar must first be scaled
 accordingly. To this end, we implemented the body measurement process, 
@@ -224,28 +224,26 @@ The overall process is described in Algorithm \ref{algo:depth_patch}.
 \DontPrintSemicolon 
 \KwIn{Raw depth and subject stream from the depth sensor}
 \KwOut{Optimized subject map}
-$depth_{\textit{sum}}=0$ \;
-$n_{\textit{user}} =0$\;
-\For{i \bf{from} 0 \bf{to} $d_{\textit{width}}$ }{
-\For{j \bf{from} 0 \bf{to} $d_{\textit{height}}$ }{
-\If{$U(i,j)$} {
-  $depth_{\textit{sum}}=depth_{\textit{sum}}+D(i,j)$\;
-  $n_{\textit{user}}+=1$\;
+$depth_{sum}=0$ \;
+$n_{user} =0$\;
+\For{i \bf{from} 0 \bf{to} $d_\textit{width}$ }{
+\For{j \bf{from} 0 \bf{to} $d_\textit{height}$ }{
+\If{$U(i, j)$} {
+  $\textit{depth}_\textit{sum}=\textit{depth}_\textit{sum}+D(i, j)$\;
+  $n_{user}+=1$\;
  }}}
-$depth_{\textit{average}}=depth_{\textit{sum}}/n_{\textit{user}}$ \;
-\For{i \bf{from} 0 \bf{to} $d_{\textit{width}}$ }{
-\For{j \bf{from} 0 \bf{to} $d_{\textit{height}}$ }{
-\If{\bf{not}  $U(i,j)$} {
-  $D(i,j)=depth_{\textit{average}}$\;
- }}}
- 
-\For{i \bf{from} 0 \bf{to} $d_{\textit{width}}$ }{
-\For{j \bf{from} 0 \bf{to} $d_{\textit{height}}$ }{
-\If{$U(i,j)$} {
-  \tcp{`*' denotes convolution operator}
-  $D(i,j)=D(i-m:i+m, j-n:j+m) * Gaussian(m,n,e)$\; 
+$\textit{depth}_\textit{average}=\textit{depth}_\textit{sum}/n_\textit{user}$ \;
+\For{i \bf{from} 0 \bf{to} $d_\textit{width}$ }{
+\For{j \bf{from} 0 \bf{to} $d_\textit{height}$ }{
+\If{\bf{not}  $U(i, j)$} {
+  $D(i, j)=\textit{depth}_\textit{average}$\;
  }}}
  
+\For{i \bf{from} 0 \bf{to} $d_\textit{width}$ }{
+\For{j \bf{from} 0 \bf{to} $d_\textit{height}$ }{
+\If{$U(i, j)$} {
+  $D(i, j)=D(i-m:i+m, j-n:j+m) * \textit{Gaussian}(m, n, e)$\;
+ }}}
 \Return{D}
 \caption{Depth Map Filtering}
 \label{algo:depth_patch}
@@ -282,12 +280,12 @@ r_i^z=J_i^z-D^z(J_i^x,J_i^y)
 \end{equation}
 \item Start with an infinitely small line segment parallel to the x-axis. Expand it until it intersects with the body contour. Take the x-distance between the intersection point and the joint location. Repeat the same process with a line segment parallel to the y-axis and take the larger radius. While expanding the segment, stop expanding and discard the corresponding result if the border of the depth map is reached.
 \begin{equation}
-r_i^{x,y}=max(|J_i^{x,y} \; - \; D^{x,y}(J_i^{y,x},J_i^z)|)
+r_i^{x,y}=max(\| \pm J_i^{x,y} \mp D^{x,y}(J_i^{y,x},J_i^z)\|)
 \label{eqn:x_y_sphere_radius}
 \end{equation}
 \item Take the minimum of the radii of the three axes because there should be no intersection with the body contour and the shape must be a sphere.
 \begin{equation}
-r_i=min(r_i^{x, y, z})
+r_i=min(r_i^{x,y,z})
 \label{eqn:minimum_sphere-radius}
 \end{equation}
 \end{enumerate}
@@ -300,36 +298,36 @@ r_i=min(r_i^{x, y, z})
 \DontPrintSemicolon 
 \KwIn{Optimized depth stream from the depth sensor}
 \KwOut{Collision sphere radii for each joint}
-\ForEach{joint}{
+\ForEach{joint }{
 $p=pos_{J_m}$\;
-$r_z=\sqrt{P_z^2-D_z(P_x,P_y)^2}$\;
+$r_z=\sqrt{P_z^2-D_z(P_x,P_y)^2}$
 \For{i \bf{from} $P_x$ \bf{to} $0$ }{
 \If{$D(i,P_y)$ \bf{equals}  $P_z$} {
-  $r_{x^{-}} = i$\;
+  $r_x^- = i$\;
   break\;
  }
 }
-\For{i \bf{from} $P_x$ \bf{to} $\textit{depth}_{\textit{width}}$ }{
+\For{i \bf{from} $P_x$ \bf{to} $\textit{depth}_\textit{width}$ }{
 \If{$D(i,P_y)$ \bf{equals}  $P_z$} {
-  $r_{x^{+}} = i$\;
+  $r_x^+ = i$\;
   break\;
  }
 }
 \For{j \bf{from} $P_y$ \bf{to} $0$ }{
 \If{$D(P_x,j)$ \bf{equals}  $P_z$} {
-  $r_{y^{-}} = j$\;
+  $r_y^- = j$\;
   break\;
  }
 }
-\For{j \bf{from} $P_y$ \bf{to} $\textit{depth}_{\textit{height}}$ }{
+\For{j \bf{from} $P_y$ \bf{to} $\textit{depth}_\textit{height}$ }{
 \If{$D(P_x,j)$ \bf{equals}  $P_z$} {
-  $r_{y^{+}} = j$\;
+  $r_y^+ = j$\;
   break\;
  }
 }
-$r_m=min(r_z,\; r_{x^{-}}, \; r_{x^{+}},\; r_{y^{-}}, \; r_{y^{+}})$
+$r_m=\textit{min}(r_z, r_x^-, r_x^+, r_y^-, r_y^+)$
 }
-\Return $(r_{0}, \; r_{1} \; \ldots \; r_{n})$ 
+\Return $(r_0,r_1 \ldots r_n)$ 
 \caption{Sphere Fitting Algorithm}
 \label{algo:sphere_fitting}
 \end{algorithm}  
@@ -397,12 +395,12 @@ The measurements are performed in the real-world space, rather than the projecti
 \item Take the primary dimension (either the body height or shoulder width) $P_i^0$. This process is repeated for width (W) and height (H).
 \item Using the remaining measurements in the set, estimate the primary dimension $P_i$ as $P_i^j$ using proportion $R_i^j$ from \ref{tbl:human_body_proportions}.
 \begin{equation}
-W,H_i^j=W,H_j \times R_i^j
+(W,H)_i^j=(W,H)_j \times R_i^j, \;\; j=1, \ldots, N
 \label{eqn:proportion_estimation}
 \end{equation}
 \item Find the optimized primary dimension as the mean of all estimations:
 \begin{equation}
-W,H_i=\frac{1}{(n+1)} \times \sum\limits_{j=0}^n W,H_i^j
+(W,H)_i=\frac{1}{(n+1)} \times \sum\limits_{j=0}^n (W,H)_i^j
 \label{eqn:optimized_parameter}
 \end{equation}
 \end{enumerate}
@@ -413,36 +411,37 @@ W,H_i=\frac{1}{(n+1)} \times \sum\limits_{j=0}^n W,H_i^j
 \DontPrintSemicolon 
 \KwIn{Human body proportions and the user and depth data}
 \KwOut{The body width and shoulder height}
-$t_{\textit{proportion}}=import(\mbox{Table}~\ref{tbl:human_body_proportions})$ \;
-$t_{\textit{primary}}= (w_{\textit{shoulder}}, \; h_{\textit{body}})$ \;
-$ct={\textit{cloth}}_{\textit{type}}$\;
-${\textit{width}}_{\textit{main}}=t_{\textit{proportion}}.width(ct)$\;
-${\textit{width}}_{\textit{sum}}=0$\;
-${\textit{count}}_{\textit{effector}}=0$\;
-\ForEach{{\textit{width}} \bf{in} $t_{\textit{proportion}}$ }{
-$w_i=\textit{measure}(p_i)$\;
-$w_i^j=w \times t_{\textit{proportion}}.\textit{ratio}(p_i,\textit{\textit{width}}_{\textit{main}})$\;
-${\textit{width}}_{\textit{sum}}={\textit{width}}_{\textit{sum}}+w_i^j $\;
-${\textit{count}}_{\textit{effector}}++ $\;
+$t_\textit{proportion}$ = {\textrm import}({\textrm Table~\ref{tbl:human_body_proportions}}) \;
+$t_\textit{primary}$ = {\textrm import}({\textrm Table~\ref{tbl:primary_proportions}}) \;
+$ct=\textit{cloth}_\textit{type}$\;
+$\textit{width}_\textit{main}=t_\textit{proportion}.width(ct)$\;
+$\textit{width}_\textit{sum}=0$\;
+$\textit{count}_\textit{effector}=0$\;
+\ForEach{width \bf{in} $t_\textit{proportion}$ }{
+$w_i = \textit{measure}(p_i)$\;
+$w_i^j=w \times t_\textit{proportion}.\textit{ratio}(p_i, \textit{parameter}_\textit{main})$\;
+$\textit{width}_\textit{sum} = \textit{width}_\textit{sum}+w_i^j $\;
+$\textit{count}_\textit{effector}++ $\;
 }
-${\textit{width}}_{\textit{weighted}}=\frac{\textit{\textit{width}}_{\textit{sum}}}{\textit{count}_{\textit{effector}}}$\;
-$x_s=\frac{\textit{\textit{width}}_{\textit{weighted}}}{\textit{\textit{width}}_{\textit{cloth}}}$\;
+$\textit{width}_\textit{weighted}=\frac{\textit{width}_\textit{sum}}{\textit{count}_{\textit{effector}}}$\;
+$x_s=\frac{\textit{width}_\textit{weighted}}{\textit{width}_\textit{cloth}}$\;
 
-${\textit{height}}_{\textit{main}}=t_{\textit{proportion}}.{\textit{height}}(ct)$\;
-${\textit{height}}_{\textit{sum}}=0$\;
-$\textit{count}_{\textit{effector}}=0$\;
-\ForEach{{\textit{height}} \bf{in} $t_{\textit{proportion}}$ }{
-$h_i={\textit{measure}}(p_i)$\;
-$h_i^j=h \times t_{\textit{proportion}}.\textit{ratio}(p_i,\textit{\textit{height}}_{\textit{main}})$\;
-${\textit{height}}_{\textit{sum}}={\textit{height}}_{\textit{sum}}+h_i^j $\;
-${\textit{count}}_{\textit{effector}}++ $\;
+$\textit{height}_\textit{main}=t_\textit{proportion}.\textit{height}(ct)$\;
+$\textit{height}_\textit{sum}=0$\;
+$\textit{count}_\textit{effector}=0$\;
+\ForEach{height \bf{in} $t_\textit{proportion}$ }{
+$h_i=\textit{ measure}(p_i)$\;
+$h_i^j=h \times t_\textit{proportion}.\textit{ ratio}(p_i, \textit{parameter}_\textit{main})$\;
+$\textit{height}_\textit{sum}=\textit{height}_\textit{sum}+h_i^j $\;
+$\textit{count}_\textit{effector}++ $\;
 }
-$\textit{\textit{height}}_{\textit{weighted}} = \frac{\textit{\textit{height}}_{\textit{sum}}}{\textit{count}_{\textit{effector}}}$\;
-$y_{s}=\frac{\textit{\textit{height}}_{\textit{weighted}}}{\textit{\textit{height}}_{\textit{cloth}}}$\;
-\Return{$(x_s, \; y_s)$}
-\caption{Body Dimension Estimation}
+$\textit{height}_\textit{weighted}=\frac{\textit{height}_\textit{sum}}{\textit{count}_{\textit{effector}}}$\;
+$y_s=\frac{\textit{height}_\textit{weighted}}{\textit{height}_\textit{cloth}}$\;
+\Return{$(x_s, y_s)$}
+\caption{Cloth resizing algorithm}
 \label{algo:cloth_resize}
 \end{algorithm}
+
 
 \doublespacing
 
@@ -463,15 +462,14 @@ This step finalizes the parameters and delivers the required parameters for simu
 \DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
 \KwIn{Raw depth stream from the depth sensor}
 \KwOut{Final collision sphere radii and body dimensions}
-\tcp{s is a buffer for storing x and y scaling parameters for 30 frames}
-\tcp{r is a buffer for storing for collision sphere radii of 16 joints for 30 frames}
-float s[30, 2], r[30, 16] \;
-\For{i \bf{from} 0 \bf{to} $30 frames$ }{
-	r[i][1:16]=fitSpheres()\;
-	s[i][1:2]=optimizeScaleParameters()\;
+$s=2 \times 30 $ Array for x and y scaling parameters for 30 frames\;
+$r=16 \times 30 $ Array for joint radii for 30 frames\;
+\For{i \bf{from} 0 \bf{to} $30$ frames }{
+	r[i]=fitSpheres()\;
+	s[i]=optimizeScaleParameters()\;
 }
-$r_{\textit{final}}$  = \textrm{avg}(r)\;
-$s_{\textit{final}}$  = \textrm{avg}(s)\;
+$r_\textit{final}$=avg(r)\;
+$s_\textit{final}$=avg(s)\;
 \caption{Temporal Averaging}
 \label{algo:temporal_averaging}
 \end{algorithm}
@@ -530,6 +528,109 @@ During runtime, the filtered local rotation of the upper limb bones are separate
 	\label{fig:forearm-comparison}
 \end{figure}
 
+\subsubsection{Handling the Foot Skating Problem}
+\label{section_foot_skating}
+The virtual model is animated by changing bone orientations and root bone position. If the orientations and root position are applied to the bones respectively, the feet of the character appear to be floating on the ground that deteriorates the realism. 
+This problem, known as footskating, is not limited to depth sensor applications. It shows up in motion-capture-based animation systems and solved in a reasonable way with approaches, such as Kovar et al.~\cite{Kovar2002} and Ikemoto et al.~\cite{Ikemoto2006}. However, these methods rely on some sort of preprocessing or supervised learning, which is not suitable for our system, as the motion is captured and applied im real time. Hence, a solution that does not require a training process is needed for such applications. Mankyu and Choi~\cite{Mankyu2013} propose a similar method that does not require training for real-time depth sensor applications. Their approach is adopted into our framework to overcome the footskating problem. However, it requires additional filters and constraints in order to be usable in our framework. It is assumed that one foot is always on the ground; otherwise, artifacts may occur, for example, if the user attempts jumping. The footskating handling algorithm consists of two parts: {\em constraint checking and adaptation} (cf.~Algorithm~\ref{algo:check_foot_constraints}) and {\em joint angle determination and application} (cf.~Algorithm~\ref{algo:foot_skating}). The whole   algorithm consists of the following four steps. 
+
+\begin{enumerate}
+\item Determine which foot is constrained by checking speed and location thresholds. The thresholds are changed adaptively in order to compensate for different sensor and user placements.
+
+\item Place the constrained foot at its last recorded position and solve the inverse kinematics problem to determine the orientations of the hip and knee joints. Solving an inverse kinematic problem is no trivial task. There are various numerical and analytical methods for inverse kinematic problems and many implementations focusing on each. We use the IKAN library by University of Pennsylvania~\cite{IKAN2013}, which uses the approach described in~\cite{Tolani2000}.  
+
+\item Check if the foot coincides with its intended position after the inverse kinematic orientations are applied to the bones. If there is a positional mismatch, relocate the root joint to complete alignment.
+
+\item Smooth the joint orientation difference in order to avoid jumps from frame to frame. This is especially important when the constraint switches, as the source of the orientations are different in two cases and they do not always overlap. Smoothing parameters are optimized using trial and error; they are not viable for adaptive nature. Smoothing also helps to overcome the self-occlusion and data-noisiness.
+\end{enumerate}
+  
+\begin{algorithm}[ht]
+\DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
+\If{\textit{isFirstFrame}}{
+\If{$p^y_{left} < p^y_{right}$ }{
+	\textit{constrained = left}\;
+	$y_\textit{threshold}=p^y_\textit{left}$\;
+}
+\Else {
+	\textit{constrained = right}\;
+	$y_\textit{threshold}=p^y_\textit{right}$\;
+}
+}
+
+\If{$constrained is left$}{
+	\tcc{Check if constraints still hold}
+	\If{$p^y_\textit{left} > y_\textit{threshold} \;\; and \;\; v_\textit{left} > v_\textit{threshold}$}{
+		\tcc{Foot is not constrained anymore, check other foot}
+		\If{$p^y_\textit{right} > y_\textit{threshold} \;\;and\;\; v_\textit{right} > v_\textit{threshold}$}{
+			\tcc{Neither foot are constrained}
+			\textit{updateThresholds()} \tcc*[f]{Thresholds should be updated} 
+			\textit{restart}\;
+		}
+		\Else(\tcc*[f]{Right foot is constrained, feet switched}){		
+			\textit{constrained=right}\;
+			\textit{recordRightFootPosition()}\;
+			\textit{constraintSwitched = True}\;
+		}
+	} 
+}
+\Else{ 
+	\tcc{Check if constraints still hold} 
+	\If{$p^y_{\textit{right}} > y_{\textit{threshold}} \;\;and\;\; v_{\textit{right}} > v_{\textit{threshold}}$}{
+		\tcc{Foot is not constrained anymore, check other foot}
+		\If{$p^y_\textit{left} > y_\textit{threshold} \;\;and\;\; v_\textit{left} > v_\textit{threshold}$}{
+			\tcc{Neither foot are constrained}
+			\textit{updateThresholds()} \tcc*[f]{Thresholds should be updated} 
+			\textit{restart}\;
+		} 
+		\Else (\tcc*[f]{Left foot is constrained, feet switched}){	
+			\textit{constrained = left}\;
+			\textit{recordRightFootPosition()}\;
+			\textit{constraintSwitched = True}\;
+		}
+	} 
+}
+\caption{Constrained foot determination}
+\label{algo:check_foot_constraints}
+\end{algorithm}
+
+ 
+\begin{algorithm}[ht]
+\DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
+{\textit checkFootConstraints()} \tcc*[f]{Check which foot is constrained}
+$p^{\textit{foot}}_{\textit{constrained}} = {\textit getRecordedFootPosition()}$\;
+${\textit{target}}_{ik} = p^{\textit{foot}}_{\textit{constrained}} - p^{\textit{hip}}_{\textit{constrained}}$\;
+\tcc{Get the rotation quaternions for constrained hip and knee}
+$q_{\textit{hip}}, q_{\textit{knee}}$ =  \textit{solveIkan}(\textit{constrained}, {\textit{target}}$_{ik}$)\;
+${\textit{hip}}_{\textit{constrained}}.{\textit{rotate}}(q_{\textit{hip}})$\;
+${\textit{foot}}_{\textit{constrained}}.{\textit{rotate}}(q_{\textit{hip}})$\;
+$p^{\textit{foot}}_{\textit{new}} = {\textit{calculateForwardKinematics()}}$\;
+\tcc{Calculate the root displacement vector}
+$d_{{\textit{root}}}$ = $p^{\textit{foot}}_{\textit{constrained}}$ - $p^{\textit{foot}}_{\textit{new}}$\;
+\textit{root}.\textit{translate}(d$_{\textit{root}}$)\;
+\tcc{Proceed with joint smoothing}
+\caption{Foot skating filtering}
+\label{algo:foot_skating}
+\end{algorithm}
+
+Joint smoothing consists of interpolating between frames, especially when there is a significant change in orientations, which would normally cause a non-continuous animation. Old joint orientations are always recorded in the global coordinate system and updated everyframe. After we get the new orientation from the new frame, we calculate the quaternion that would rotate the old orientation to the new one:
+
+\begin{equation}
+Q_{d} = Q_{new} \times Q_{old}^{-1}
+\label{eqn:rotator_quaternion}
+\end{equation} 
+
+When we compute the delta quaternion, we get its axis-angle representation. Because we are interested in rotating the joint partially, we build up a new quaternion with the same axis and a fraction of the same angle. The fraction varies with whether the constraint is switched recently. 
+
+\begin{equation} 
+\begin{split}
+Q_{d} = \textit{Quaternion}((x, y, z), \alpha) \\  
+Q_d^* = \textit{Quaternion}((x, y, z), \alpha / k )
+\label{eqn:partial_rotator}
+\end{split}
+\end{equation} 
+
+The fractional rotations are then applied to the joints to get a smoother movement. Other implicit operations include coordinate system transformations, as we are working with three different coordinate systems: Global-Render Coordinate System, Local-Render Coordinate System, and IKAN Coordinate System. 
+%The constraints of the IKAN library require certain to-and-from transformations to be applied with the coordinate systems. 
+
 \section{Experiments}
 \label{sec:Experiments}
 The proposed depth map enhancement algorithm is implemented on the in-house developed virtual dressing software, which acts as 
@@ -538,7 +639,29 @@ identified and calibrated for tracking. Following the parameter estimation, the 
 simulation starts.
 
 Experiments are performed on a high-end PC with Intel i7-2600 and NVIDIA GeForce GTX560Ti. The total time for the measurement of body parameters and 
-resizing the cloth does not exceed 1.005 seconds. Considering the time for acquiring 30 frames of input from the depth sensor is 1.0 second, it is safe to say that the measurement algorithm does not introduce any delays for a real time application because it needs to run only once at the beginning of the simulation. The actual simulation runs at 600 fps on $1920 \times 1080$ resolution. The body sizes are estimated with error rates less than 4\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size.
+resizing the cloth does not exceed 1.005 seconds. Considering the time for acquiring 30 frames of input from the depth sensor is 1.0 second, it is safe to say that the measurement algorithm does not introduce any delays for a real time application because it needs to run only once at the beginning of the simulation. The actual simulation runs at 600 fps on $1920 \times 1080$ resolution. The body sizes are estimated with error rates less than 4\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
+
+Two sets of frame rates across the simulation can be seen in Figure~\ref{fig:fps}. Notice the common pattern in both of the simulations. The first drop corresponds to the start of the animation of the avatar with the input from depth sensor. Until that point, the avatar is static, the motion filters do not run and the simulation runs at a higher speed. Approximately 600 fps is lost due to the motion filtering and skinning. The first cliff in the graph corresponds to the point where the physics simulation is stopped. The second cliff starts when the input from the depth sensor is stopped and the simulation is stagnant.  
+
+\begin{figure}[htbp]
+	\begin{center} 
+	\fbox{\includegraphics[width=0.98\textwidth]{./figures/fps.eps}}
+	\end{center}
+	\caption{The frame rates for two different apparel meshes. }
+	\label{fig:fps}
+\end{figure}
+
+The filters on the legs focus on solving the foot skating problem. The corrected displacement values can be seen in Figure~\ref{fig:footskating}. The virtual unit is the unit step in the virtual world. For reference, the virtual avatars' height is 55 virtual units. Hence, a virtual unit corresponds close to 3.5 cm.  
+
+\begin{figure}[htbp] 
+	\begin{center} 
+	\fbox{\includegraphics[width=0.98\textwidth]{./figures/footskate.eps}}
+	\end{center}
+	\caption{The corrected displacement of feet. The local minima correspond to constrained foot changes and subsequent 
+	position smoothing. The zig zag regions correspond to time intervals where the user performing body yaw motion where 
+	the foot are considerably sliding.}
+	\label{fig:footskating}
+\end{figure}
 
 Table~\ref{tbl:body_results} presents the measurements of the body dimensions, as well as the errors and standard deviations of the measurements in 30 frames for three subjects. Our results are compared with the results from~\cite{Giovanni2012} and \cite{Samejima2012}, which are also real-time applications, in Table~\ref{tbl:performance_compare}.
 
@@ -569,7 +692,7 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 \hline 
   & \rotatebox{90}{\parbox[c]{2.95cm}{\mbox{Error Average} \mbox{\hspace{0.7cm}(\%)}}} & \rotatebox{90}{\parbox[c]{2.95cm}{\mbox{Error Deviation} \mbox{\hspace{0.7cm}(\%)}}} & \rotatebox{90}{Duration} & \rotatebox{90}{Estimation} \\ \hline
   Our Approach & 2.13  & 1.20   & 1.00 & Fixed \\ \hline 
-  Giovanni et al.~\cite{Giovanni2012}  & 4.00  & 3.00  & 1.00 & None \\ \hline
+  Giovanni et al.~\cite{Giovanni2012}  & 4.00  & 3.00  & 1.00 & None \\ \hline  
   Samejima et al.~\cite{Samejima2012}  & 6.72  & 4.68  & n/a & PCA \\ \hline
 \end{tabular}
 \end{center}  
@@ -580,7 +703,7 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 \doublespacing
 
 For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, 
-unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. 
+unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}.
 
 \begin{figure}[htbp]
 	\begin{center} 
@@ -618,6 +741,25 @@ unnatural intersections between the cloth and the avatar never take place, while
 	(c) flight suit.}
 	\label{fig:examples}
 \end{figure}
+
+\begin{figure}[htbp] 
+	\centerline{
+	\includegraphics[width=0.333\textwidth]{./figures/sundress.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/jeans.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/flight.eps}
+	}
+	\centerline{(a)}
+	\centerline{\ }
+	\centerline{
+	\includegraphics[width=0.333\textwidth]{./figures/shirt.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/duster.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/martial.eps}
+	}
+	\centerline{(b)}
+	\caption{The designed apparel meshes for the male and female avatars.}
+	\label{fig:apparels}
+\end{figure}
+
 
 \clearpage
 
@@ -755,6 +897,21 @@ H-Anim. Humanoid Animation Working Group. Available at \verb+http://www.h-anim.o
 
 \bibitem{Kavan2009}
 L. Kavan, S. Collins, and C. O'Sullivan. Automatic Linearization of Nonlinear Skinning. {\textit Proceedings of the Symposium on Interactive 3D Graphics and Games (I3D '09)}, pages 49-56, ACM, New York, NY, USA, 2009.
+
+\bibitem{Kovar2002}
+Kovar, Lucas, John Schreiner, and Michael Gleicher. "Footskate cleanup for motion capture editing." Proceedings of the 2002 ACM SIGGRAPH/Eurographics symposium on Computer animation. ACM, 2002.
+
+\bibitem{Ikemoto2006}
+Ikemoto, Leslie, Okan Arikan, and David Forsyth. "Knowing when to put your foot down." Proceedings of the 2006 symposium on Interactive 3D graphics and games. ACM, 2006.
+
+\bibitem{Mankyu2013}
+Sung, Mankyu. "Automatic Fixing of Foot Skating of Human Motions from Depth Sensor." Multimedia and Ubiquitous Engineering. Springer Netherlands, 2013. 405-412.
+
+\bibitem{IKAN2013}
+Human Modeling and Simulation Laboratory, University of Pennsylvania, "Inverse Kinematics using Analytical Methods-IKAN" 2013
+
+\bibitem{Tolani2000}
+Tolani, Deepak, Ambarish Goswami, and Norman I. Badler. "Real-time inverse kinematics techniques for anthropomorphic limbs." Graphical models 62.5 (2000): 353-388.
 
 \bibitem{Samejima2012}
 I. Samejima, K. Maki, S. Kagami, M. Kouchi, and H. Mizoguchi. A Body Dimensions Estimation Method of Subject from a Few Measurement Items Using KINECT. {\textit Proceedings of the IEEE International Conference on Systems, Man, and Cybernetics (SMC)}, 2012.

@@ -1,5 +1,5 @@
 #TeXlipse project settings
-#Tue Jun 04 10:44:20 EEST 2013
+#Sun Aug 04 13:53:25 EEST 2013
 markTmpDer=true
 builderNum=2
 outputDir=
@@ -7,8 +7,8 @@ makeIndSty=
 bibrefDir=
 outputFormat=pdf
 tempDir=tmp
-mainTexFile=CGI2013.tex
-outputFile=CGI2013.pdf
+mainTexFile=CAD.tex
+outputFile=CAD.pdf
 langSpell=en
 markDer=true
 srcDir=
