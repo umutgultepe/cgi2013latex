@@ -1,0 +1,58 @@
+%%%%%%% DEFINE DOUBLE-SPACING (THE DEFAULT) AND OTHER SPACING:
+\def\setspace@size{\ifx\@currsize\normalsize\@normalsize\else\@currsize\fi}
+\def\doublespacing{ \ifcase \@ptsize \relax
+      \def \baselinestretch {2.004}%	10pt
+  \or \def \baselinestretch {1.771}%	11pt
+  \or \def \baselinestretch {1.660}%	12pt
+  \fi \setspace@size}
+\def\singlespacing{\def \baselinestretch {1} \setspace@size \vskip \baselineskip}
+\def\setstretch#1{\renewcommand{\baselinestretch}{#1}}
+\def\@setsize#1#2#3#4{\@nomath#1
+  \let\@currsize#1 \baselineskip #2
+  \baselineskip \baselinestretch\baselineskip
+  \parskip \baselinestretch\parskip
+  \setbox\strutbox \hbox{ \vrule height.7\baselineskip depth.3\baselineskip
+  width\z@} \skip\footins \baselinestretch\skip\footins
+  \normalbaselineskip\baselineskip#3#4}
+%%%%%%%%% floats & footnotes singlespaced %%%%%%%%%
+\let\latex@xfloat=\@xfloat
+\def\@xfloat #1[#2]{\latex@xfloat #1[#2]
+\def\baselinestretch{1}\@normalsize \normalsize}
+\long\def\@footnotetext#1{
+  \insert\footins{
+    \def\baselinestretch {1}
+    \reset@font\footnotesize
+    \interlinepenalty\interfootnotelinepenalty
+    \splittopskip\footnotesep
+    \splitmaxdepth \dp\strutbox \floatingpenalty \@MM
+    \hsize\columnwidth \@parboxrestore
+    \protected@edef\@currentlabel{
+      \csname p@footnote\endcsname\@thefnmark}
+    \color@begingroup \@makefntext{
+        \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox}
+    \color@endgroup}}
+\long\def\@mpfootnotetext#1{
+  \global\setbox\@mpfootins\vbox{
+    \unvbox \@mpfootins
+    \def\baselinestretch {1}
+    \reset@font\footnotesize
+    \hsize\columnwidth \@parboxrestore
+    \protected@edef\@currentlabel{
+      \csname p@mpfootnote\endcsname\@thefnmark}
+    \color@begingroup \@makefntext{
+       \rule\z@\footnotesep\ignorespaces#1\@finalstrut\strutbox}
+   \color@endgroup}}
+%%%%%%%% single / double spacing %%%%%%%%%
+\def\singlespace{ \vskip \baselineskip \def\baselinestretch {1}
+  \setspace@size \vskip -\baselineskip }
+\def\endsinglespace{\par}
+\def\spacing#1{ \par \begingroup \def\baselinestretch {#1} \setspace@size }
+\def\endspacing{ \par \vskip \parskip \vskip \baselineskip
+  \endgroup \vskip -\parskip \vskip -\baselineskip }
+\def\doublespace{ \ifcase \@ptsize \relax
+      \spacing{2.004}%	10pt
+  \or \spacing{1.771}%	11pt
+  \or \spacing{1.660}%	12pt
+  \fi }
+\let\enddoublespace=\endspacing
+
