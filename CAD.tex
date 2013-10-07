@@ -12,7 +12,7 @@
 %% \documentclass[final,5p,times]{elsarticle}
 %% \documentclass[final,5p,times,twocolumn]{elsarticle}
 
-%% if you use PostScript figures in your article 
+%% if you use PostScript figures in your article
 %% use the graphics package for simple commands
 %% \usepackage{graphics}
 %% or use the graphicx package for more complicated commands
@@ -115,7 +115,7 @@ in order to overcome the high noise of the depth sensor. However, temporal
 averaging does not prove to be sufficient because unnatural movements take
 place due to limited recognition capabilities and self-occlusion.
 Therefore we implemented customized joint angle filters, along with bone
-splitting to let limbs twist in a more natural way. We also employ filtering on hip and knee joints to overcome the footskating problem.
+splitting to let limbs twist in a more natural way.
 
 The cloth pieces to be fitted on the user's avatar must first be scaled
 accordingly. To this end, we implemented the body measurement process, 
@@ -178,7 +178,7 @@ Collision between the body and the cloth is detected using collision spheres and
 
 \begin{figure}[htbp]
 	\begin{center}
-	\includegraphics[width=0.5\textwidth]{./figures/colliders.eps}
+	\includegraphics[width=0.70\textwidth]{./figures/colliders.eps}
 	\end{center}
 	\caption{The colliding human body with the default radii}
 	\label{fig:colliders}
@@ -224,26 +224,28 @@ The overall process is described in Algorithm \ref{algo:depth_patch}.
 \DontPrintSemicolon 
 \KwIn{Raw depth and subject stream from the depth sensor}
 \KwOut{Optimized subject map}
-$depth_{sum}=0$ \;
-$n_{user} =0$\;
-\For{i \bf{from} 0 \bf{to} $d_\textit{width}$ }{
-\For{j \bf{from} 0 \bf{to} $d_\textit{height}$ }{
-\If{$U(i, j)$} {
-  $\textit{depth}_\textit{sum}=\textit{depth}_\textit{sum}+D(i, j)$\;
-  $n_{user}+=1$\;
+$depth_{\textit{sum}}=0$ \;
+$n_{\textit{user}} =0$\;
+\For{i \bf{from} 0 \bf{to} $d_{\textit{width}}$ }{
+\For{j \bf{from} 0 \bf{to} $d_{\textit{height}}$ }{
+\If{$U(i,j)$} {
+  $depth_{\textit{sum}}=depth_{\textit{sum}}+D(i,j)$\;
+  $n_{\textit{user}}+=1$\;
  }}}
-$\textit{depth}_\textit{average}=\textit{depth}_\textit{sum}/n_\textit{user}$ \;
-\For{i \bf{from} 0 \bf{to} $d_\textit{width}$ }{
-\For{j \bf{from} 0 \bf{to} $d_\textit{height}$ }{
-\If{\bf{not}  $U(i, j)$} {
-  $D(i, j)=\textit{depth}_\textit{average}$\;
+$depth_{\textit{average}}=depth_{\textit{sum}}/n_{\textit{user}}$ \;
+\For{i \bf{from} 0 \bf{to} $d_{\textit{width}}$ }{
+\For{j \bf{from} 0 \bf{to} $d_{\textit{height}}$ }{
+\If{\bf{not}  $U(i,j)$} {
+  $D(i,j)=depth_{\textit{average}}$\;
  }}}
  
-\For{i \bf{from} 0 \bf{to} $d_\textit{width}$ }{
-\For{j \bf{from} 0 \bf{to} $d_\textit{height}$ }{
-\If{$U(i, j)$} {
-  $D(i, j)=D(i-m:i+m, j-n:j+m) * \textit{Gaussian}(m, n, e)$\;
+\For{i \bf{from} 0 \bf{to} $d_{\textit{width}}$ }{
+\For{j \bf{from} 0 \bf{to} $d_{\textit{height}}$ }{
+\If{$U(i,j)$} {
+  \tcp{`*' denotes convolution operator}
+  $D(i,j)=D(i-m:i+m, j-n:j+m) * Gaussian(m,n,e)$\; 
  }}}
+ 
 \Return{D}
 \caption{Depth Map Filtering}
 \label{algo:depth_patch}
@@ -254,8 +256,7 @@ $\textit{depth}_\textit{average}=\textit{depth}_\textit{sum}/n_\textit{user}$ \;
 \subsubsection{Body Measurement}
 \label{subsubsec:4.2} 
 
-By now, we have an optimized depth map, which is ready for performing key body dimension measurements. The key dimensions are handled in two groups:
- the collision sphere radii, which are used for the collision detection in the simulation, and the height and width parameters, which are used to determine to size of the apparel. 
+By now, we have an optimized depth map, which is ready for performing key body dimension measurements. The key dimensions are handled in two groups: the collision sphere radii, which are used for the collision detection in the simulation, and the height and width parameters, which are used to determine to size of the apparel. 
 
 \paragraph{Collision Sphere Radii:}
 
@@ -263,7 +264,7 @@ The simulation framework utilizes collision spheres and capsules instead of arbi
 
 \begin{figure}[htbp]
 	\begin{center}
-	\includegraphics[width=0.75\textwidth]{./figures/nite_joints.eps}
+	\includegraphics[width=0.85\textwidth]{./figures/nite_joints.eps}
 	\end{center}
 	\caption{Human joints provided by Kinect SDK~\cite{CodeProject2011}.}
 	\label{fig:nite_joints}
@@ -280,12 +281,12 @@ r_i^z=J_i^z-D^z(J_i^x,J_i^y)
 \end{equation}
 \item Start with an infinitely small line segment parallel to the x-axis. Expand it until it intersects with the body contour. Take the x-distance between the intersection point and the joint location. Repeat the same process with a line segment parallel to the y-axis and take the larger radius. While expanding the segment, stop expanding and discard the corresponding result if the border of the depth map is reached.
 \begin{equation}
-r_i^{x,y}=max(\| \pm J_i^{x,y} \mp D^{x,y}(J_i^{y,x},J_i^z)\|)
+r_i^{x,y}=max(|J_i^{x,y} \; - \; D^{x,y}(J_i^{y,x},J_i^z)|)
 \label{eqn:x_y_sphere_radius}
 \end{equation}
 \item Take the minimum of the radii of the three axes because there should be no intersection with the body contour and the shape must be a sphere.
 \begin{equation}
-r_i=min(r_i^{x,y,z})
+r_i=min(r_i^{x, y, z})
 \label{eqn:minimum_sphere-radius}
 \end{equation}
 \end{enumerate}
@@ -298,36 +299,36 @@ r_i=min(r_i^{x,y,z})
 \DontPrintSemicolon 
 \KwIn{Optimized depth stream from the depth sensor}
 \KwOut{Collision sphere radii for each joint}
-\ForEach{joint }{
+\ForEach{joint}{
 $p=pos_{J_m}$\;
-$r_z=\sqrt{P_z^2-D_z(P_x,P_y)^2}$
+$r_z=\sqrt{P_z^2-D_z(P_x,P_y)^2}$\;
 \For{i \bf{from} $P_x$ \bf{to} $0$ }{
 \If{$D(i,P_y)$ \bf{equals}  $P_z$} {
-  $r_x^- = i$\;
+  $r_{x^{-}} = i$\;
   break\;
  }
 }
-\For{i \bf{from} $P_x$ \bf{to} $\textit{depth}_\textit{width}$ }{
+\For{i \bf{from} $P_x$ \bf{to} $\textit{depth}_{\textit{width}}$ }{
 \If{$D(i,P_y)$ \bf{equals}  $P_z$} {
-  $r_x^+ = i$\;
+  $r_{x^{+}} = i$\;
   break\;
  }
 }
 \For{j \bf{from} $P_y$ \bf{to} $0$ }{
 \If{$D(P_x,j)$ \bf{equals}  $P_z$} {
-  $r_y^- = j$\;
+  $r_{y^{-}} = j$\;
   break\;
  }
 }
-\For{j \bf{from} $P_y$ \bf{to} $\textit{depth}_\textit{height}$ }{
+\For{j \bf{from} $P_y$ \bf{to} $\textit{depth}_{\textit{height}}$ }{
 \If{$D(P_x,j)$ \bf{equals}  $P_z$} {
-  $r_y^+ = j$\;
+  $r_{y^{+}} = j$\;
   break\;
  }
 }
-$r_m=\textit{min}(r_z, r_x^-, r_x^+, r_y^-, r_y^+)$
+$r_m=min(r_z,\; r_{x^{-}}, \; r_{x^{+}},\; r_{y^{-}}, \; r_{y^{+}})$
 }
-\Return $(r_0,r_1 \ldots r_n)$ 
+\Return $(r_{0}, \; r_{1} \; \ldots \; r_{n})$ 
 \caption{Sphere Fitting Algorithm}
 \label{algo:sphere_fitting}
 \end{algorithm}  
@@ -395,12 +396,12 @@ The measurements are performed in the real-world space, rather than the projecti
 \item Take the primary dimension (either the body height or shoulder width) $P_i^0$. This process is repeated for width (W) and height (H).
 \item Using the remaining measurements in the set, estimate the primary dimension $P_i$ as $P_i^j$ using proportion $R_i^j$ from \ref{tbl:human_body_proportions}.
 \begin{equation}
-(W,H)_i^j=(W,H)_j \times R_i^j, \;\; j=1, \ldots, N
+W,H_i^j=W,H_j \times R_i^j
 \label{eqn:proportion_estimation}
 \end{equation}
 \item Find the optimized primary dimension as the mean of all estimations:
 \begin{equation}
-(W,H)_i=\frac{1}{(n+1)} \times \sum\limits_{j=0}^n (W,H)_i^j
+W,H_i=\frac{1}{(n+1)} \times \sum\limits_{j=0}^n W,H_i^j
 \label{eqn:optimized_parameter}
 \end{equation}
 \end{enumerate}
@@ -411,37 +412,36 @@ The measurements are performed in the real-world space, rather than the projecti
 \DontPrintSemicolon 
 \KwIn{Human body proportions and the user and depth data}
 \KwOut{The body width and shoulder height}
-$t_\textit{proportion}$ = {\textrm import}({\textrm Table~\ref{tbl:human_body_proportions}}) \;
-$t_\textit{primary}$ = {\textrm import}({\textrm Table~\ref{tbl:primary_proportions}}) \;
-$ct=\textit{cloth}_\textit{type}$\;
-$\textit{width}_\textit{main}=t_\textit{proportion}.width(ct)$\;
-$\textit{width}_\textit{sum}=0$\;
-$\textit{count}_\textit{effector}=0$\;
-\ForEach{width \bf{in} $t_\textit{proportion}$ }{
-$w_i = \textit{measure}(p_i)$\;
-$w_i^j=w \times t_\textit{proportion}.\textit{ratio}(p_i, \textit{parameter}_\textit{main})$\;
-$\textit{width}_\textit{sum} = \textit{width}_\textit{sum}+w_i^j $\;
-$\textit{count}_\textit{effector}++ $\;
+$t_{\textit{proportion}}=import(\mbox{Table}~\ref{tbl:human_body_proportions})$ \;
+$t_{\textit{primary}}= (w_{\textit{shoulder}}, \; h_{\textit{body}})$ \;
+$ct={\textit{cloth}}_{\textit{type}}$\;
+${\textit{width}}_{\textit{main}}=t_{\textit{proportion}}.width(ct)$\;
+${\textit{width}}_{\textit{sum}}=0$\;
+${\textit{count}}_{\textit{effector}}=0$\;
+\ForEach{{\textit{width}} \bf{in} $t_{\textit{proportion}}$ }{
+$w_i=\textit{measure}(p_i)$\;
+$w_i^j=w \times t_{\textit{proportion}}.\textit{ratio}(p_i,\textit{\textit{width}}_{\textit{main}})$\;
+${\textit{width}}_{\textit{sum}}={\textit{width}}_{\textit{sum}}+w_i^j $\;
+${\textit{count}}_{\textit{effector}}++ $\;
 }
-$\textit{width}_\textit{weighted}=\frac{\textit{width}_\textit{sum}}{\textit{count}_{\textit{effector}}}$\;
-$x_s=\frac{\textit{width}_\textit{weighted}}{\textit{width}_\textit{cloth}}$\;
+${\textit{width}}_{\textit{weighted}}=\frac{\textit{\textit{width}}_{\textit{sum}}}{\textit{count}_{\textit{effector}}}$\;
+$x_s=\frac{\textit{\textit{width}}_{\textit{weighted}}}{\textit{\textit{width}}_{\textit{cloth}}}$\;
 
-$\textit{height}_\textit{main}=t_\textit{proportion}.\textit{height}(ct)$\;
-$\textit{height}_\textit{sum}=0$\;
-$\textit{count}_\textit{effector}=0$\;
-\ForEach{height \bf{in} $t_\textit{proportion}$ }{
-$h_i=\textit{ measure}(p_i)$\;
-$h_i^j=h \times t_\textit{proportion}.\textit{ ratio}(p_i, \textit{parameter}_\textit{main})$\;
-$\textit{height}_\textit{sum}=\textit{height}_\textit{sum}+h_i^j $\;
-$\textit{count}_\textit{effector}++ $\;
+${\textit{height}}_{\textit{main}}=t_{\textit{proportion}}.{\textit{height}}(ct)$\;
+${\textit{height}}_{\textit{sum}}=0$\;
+$\textit{count}_{\textit{effector}}=0$\;
+\ForEach{{\textit{height}} \bf{in} $t_{\textit{proportion}}$ }{
+$h_i={\textit{measure}}(p_i)$\;
+$h_i^j=h \times t_{\textit{proportion}}.\textit{ratio}(p_i,\textit{\textit{height}}_{\textit{main}})$\;
+${\textit{height}}_{\textit{sum}}={\textit{height}}_{\textit{sum}}+h_i^j $\;
+${\textit{count}}_{\textit{effector}}++ $\;
 }
-$\textit{height}_\textit{weighted}=\frac{\textit{height}_\textit{sum}}{\textit{count}_{\textit{effector}}}$\;
-$y_s=\frac{\textit{height}_\textit{weighted}}{\textit{height}_\textit{cloth}}$\;
-\Return{$(x_s, y_s)$}
-\caption{Cloth resizing algorithm}
+$\textit{\textit{height}}_{\textit{weighted}} = \frac{\textit{\textit{height}}_{\textit{sum}}}{\textit{count}_{\textit{effector}}}$\;
+$y_{s}=\frac{\textit{\textit{height}}_{\textit{weighted}}}{\textit{\textit{height}}_{\textit{cloth}}}$\;
+\Return{$(x_s, \; y_s)$}
+\caption{Body Dimension Estimation}
 \label{algo:cloth_resize}
 \end{algorithm}
-
 
 \doublespacing
 
@@ -449,12 +449,8 @@ $y_s=\frac{\textit{height}_\textit{weighted}}{\textit{height}_\textit{cloth}}$\;
 \label{subsec:4.3} 
 
 By now, we have acquired the required body dimensions and collision sphere parameters for a realistic simulation. 
-Yet, the measurements are performed on a filtered version of a depth sensor with high error rates. In order to overcome the noise and overall depth-sense faults,
- the prior measurements are repeated for the duration of one second, which corresponds to 30 frames of input depth map. 
-A considerably different approach here would be to employ the temporal averaging on the depth map instead of the measured parameters. 
-We observe that the results suffer due to the motions of the subject because most subjects fails to keep their exact form for one second. 
-To overcome these problems, we use temporal averaging that takes the mean of the specified parameters for the frames in one second. 
-This step finalizes the parameters and delivers the required parameters for simulation environment synthesis. 
+Yet, the measurements are performed on a filtered version of a depth sensor with high error rates. In order to overcome the noise and overall depth-sense faults, the prior measurements are repeated for the duration of one second, which corresponds to 30 frames of input depth map. 
+A considerably different approach here would be to employ the temporal averaging on the depth map instead of the measured parameters. We observe that the results suffer due to the motions of the subject because most subjects fails to keep their exact form for one second. To overcome these problems, we use temporal averaging that takes the mean of the specified parameters for the frames in one second. This step finalizes the parameters and delivers the required parameters for simulation environment synthesis. 
 
 \singlespacing
 
@@ -462,14 +458,15 @@ This step finalizes the parameters and delivers the required parameters for simu
 \DontPrintSemicolon % Some LaTeX compilers require you to use \dontprintsemicolon instead
 \KwIn{Raw depth stream from the depth sensor}
 \KwOut{Final collision sphere radii and body dimensions}
-$s=2 \times 30 $ Array for x and y scaling parameters for 30 frames\;
-$r=16 \times 30 $ Array for joint radii for 30 frames\;
-\For{i \bf{from} 0 \bf{to} $30$ frames }{
-	r[i]=fitSpheres()\;
-	s[i]=optimizeScaleParameters()\;
+\tcp{s is a buffer for storing x and y scaling parameters for 30 frames}
+\tcp{r is a buffer for storing for collision sphere radii of 16 joints for 30 frames}
+float s[30, 2], r[30, 16] \;
+\For{i \bf{from} 0 \bf{to} $30 frames$ }{
+	r[i][1:16]=fitSpheres()\;
+	s[i][1:2]=optimizeScaleParameters()\;
 }
-$r_\textit{final}$=avg(r)\;
-$s_\textit{final}$=avg(s)\;
+$r_{\textit{final}}$  = \textrm{avg}(r)\;
+$s_{\textit{final}}$  = \textrm{avg}(s)\;
 \caption{Temporal Averaging}
 \label{algo:temporal_averaging}
 \end{algorithm}
@@ -692,7 +689,7 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 \hline 
   & \rotatebox{90}{\parbox[c]{2.95cm}{\mbox{Error Average} \mbox{\hspace{0.7cm}(\%)}}} & \rotatebox{90}{\parbox[c]{2.95cm}{\mbox{Error Deviation} \mbox{\hspace{0.7cm}(\%)}}} & \rotatebox{90}{Duration} & \rotatebox{90}{Estimation} \\ \hline
   Our Approach & 2.13  & 1.20   & 1.00 & Fixed \\ \hline 
-  Giovanni et al.~\cite{Giovanni2012}  & 4.00  & 3.00  & 1.00 & None \\ \hline  
+  Giovanni et al.~\cite{Giovanni2012}  & 4.00  & 3.00  & 1.00 & None \\ \hline
   Samejima et al.~\cite{Samejima2012}  & 6.72  & 4.68  & n/a & PCA \\ \hline
 \end{tabular}
 \end{center}  
@@ -702,8 +699,7 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 
 \doublespacing
 
-For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, 
-unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}.
+For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. 
 
 \begin{figure}[htbp]
 	\begin{center} 
@@ -859,7 +855,7 @@ Feature Based 3D Garment Design Through 2D Sketches.
 
 \bibitem{Kim2003}
 S.M. Kim and T.J. Kang.
-Garment Pattern Generation from Body Scan Data
+Garment Pattern Generation from Body Scan Data.
 \textit{Computer-Aided Design}, 35(7):611-618, 2003. 
 
 \bibitem{Kim2013}
