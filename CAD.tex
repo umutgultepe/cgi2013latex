@@ -85,7 +85,7 @@
 \address{Bilkent University, Department of Computer Engineering, Bilkent 06800 Ankara Turkey}
 
 \begin{abstract}
-We present a novel virtual fitting room framework using a depth sensor, which provides a realistic fitting experience with customized motion filters, size adjustments and physical simulation. The proposed scaling method adjusts the avatar and determines a specific apparel size, prepares the collision mesh and the physics simulation, with a total of one second preprocessing time. The real-time motion filters prevent unnatural artifacts due to the noise from depth sensor or self-occluded body parts. We apply bone splitting to realistically render the body parts near the joints.
+We present a novel virtual fitting room framework using a depth sensor, which provides a realistic fitting experience with customized motion filters, size adjustments and physical simulation. The proposed scaling method adjusts the avatar and determines a standardized apparel size according to the user's measurements, prepares the collision mesh and the physics simulation, with a total of one second preprocessing time. The real-time motion filters prevent unnatural artifacts due to the noise from depth sensor or self-occluded body parts. We apply bone splitting to realistically render the body parts near the joints.
 \end{abstract}
 
 \begin{keyword}
@@ -162,7 +162,7 @@ Because these topics are considered boiler plate for such an application, they a
 
 \begin{figure}[htbp]
 	\centerline{
-	\includegraphics[width=1.0\textwidth]{overall.eps}
+	\includegraphics[width=1.0\textwidth]{./figures/overall.eps}
 	}
 	\caption{The overall virtual dressing framework}
 	\label{fig:overall}
@@ -178,7 +178,7 @@ Collision between the body and the cloth is detected using collision spheres and
 
 \begin{figure}[htbp]
 	\begin{center}
-	\includegraphics[width=0.5\textwidth]{colliders.eps}
+	\includegraphics[width=0.5\textwidt\textwidth]{./figures/colliders.eps}
 	\end{center}
 	\caption{The colliding human body with the default radii}
 	\label{fig:colliders}
@@ -263,7 +263,7 @@ The simulation framework utilizes collision spheres and capsules instead of arbi
 
 \begin{figure}[htbp]
 	\begin{center}
-	\includegraphics[width=0.75\textwidth]{nite_joints.eps}
+	\includegraphics[width=0.75\textwidth]{./figures/nite_joints.eps}
 	\end{center}
 	\caption{Human joints provided by Kinect SDK~\cite{CodeProject2011}.}
 	\label{fig:nite_joints}
@@ -445,7 +445,7 @@ $y_s=\frac{\textit{height}_\textit{weighted}}{\textit{height}_\textit{cloth}}$\;
 
 \doublespacing
 
-\subsubsection{Temporal Optimization}
+\subsubsection{Temporal Averaging}
 \label{subsec:4.3} 
 
 By now, we have acquired the required body dimensions and collision sphere parameters for a realistic simulation. 
@@ -491,7 +491,7 @@ The inferior quality of the orientation data is improved in two stages: applying
 
 \begin{figure}[htbp]
 	\centerline{
-	\fbox{\includegraphics[width=0.98\textwidth]{rotation-filter.eps}}
+	\fbox{\includegraphics[width=0.98\textwidth]{./figures/rotation-filter.eps}}
 	}
 \centerline{\ }
 \caption{The row and filtered samples for right the humerus roll angle}
@@ -502,27 +502,29 @@ The inferior quality of the orientation data is improved in two stages: applying
 \subsubsection{Bone Splitting}
 The lower sections of human limbs contain two parallel bones allowing the twisting rotation on the hands and feet. The configurations of bones allow all portions of the lower limbs follow the bones in pitch and roll rotations, although the effect of yaw rotation decreases as it gets closer to the mid-section joint (elbow or knee). This effect is not possible to achieve with a single bone fore-arm representation, as specified in the highest level of detail in the H-ANIM standard~\cite{HANIM}, using unified weights (same for all types of rotations, transformations and scaling) and linear skinning. On the other hand, applying a different set of weights for each possible transformation, rotation or scaling requires additional space and time, which can be considered redundant because it is not going to be used in most parts of the skeleton and surface mesh; thus, it is not implemented in most of the popular rendering engines. This problem is addressed by Kavan et al.~\cite{Kavan2009}, proposing a method of introducing additional blending bones to simulate non-linear skinning. However, this approach is not suitable for a real-time application with previously unknown motions. 
 
-Because our only problematic bones for this particular case is the upper limbs, we employed a novel approach to solve this problem by introducing an additional bone connected in series for the upper limbs. The humerus and ulna bones are split halfway and the lower sections are labeled as humerus-extension and ulna-extension, respectively. The vertex weights in the corresponding sections are divided linearly among two sections, as seen in Figure~\ref{fig:forearm-weights}. 
+Another solution to the same problem was presented by Mohr and Gleicher\cite{Mohr2003}, where they automatically inserted additional joints into the skeleton system if the existing structure deemed unfit to achieve the desired skin deformation. They also use the same method to simulate bulges in the skin through muscle contractions. On the other hand, their study aims to solve this problem in the design stage and in an offline manner, rather than the animation stage and in an online system. 
+
+Because our only problematic bones for this particular case is the upper limbs, we employed a similar approach with \cite{Mohr2003} to solve this problem by introducing an additional bone connected in series for the upper limbs. The humerus and ulna bones are split halfway and the lower sections are labeled as humerus-extension and ulna-extension, respectively. The vertex weights in the corresponding sections are divided linearly among two sections, as seen in Figure~\ref{fig:forearm-weights}. 
 
 
 \begin{figure}[htbp]
-	\centerline{\includegraphics[width=0.75\textwidth]{ulna-weight.eps}}
+	\centerline{\includegraphics[width=0.75\textwidth]{./figures/ulna-weight.eps}}
 	\centerline{(a)}
 	\centerline{\ }
-	\centerline{\includegraphics[width=0.75\textwidth]{ulna-extent-weight.eps}}
+	\centerline{\includegraphics[width=0.75\textwidth]{./figures/ulna-extent-weight.eps}}
 	\centerline{(b)} 
 	\centerline{\ } 
 	\caption{The vertex weights for (a) the upper ulna and (b) the lower ulna bone (weight increases from blue to yellow).}
 	\label{fig:forearm-weights}
 \end{figure}
 
-During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone, respectively. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. As seen in Figure~\ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
+During runtime, the filtered local rotation of the upper limb bones are separated into two distinct rotations, one containing the yaw and the other containing pitch and roll rotations, which are applied to the extension bone and the original bone, respectively. With proper weights, the rotation of the users arm is transferred to the virtual avatar naturally without introducing any artifacts. These weights are derived from the automatic assigned joint-vertex influence weights to a single bone, distributed linearly between the elbow and wrist joints. As seen in Figure~\ref{fig:forearm-comparison}, the vertices on the forearm twist in a more natural way resembling the real motion.
 
 \begin{figure}[htbp]
-	\centerline{\includegraphics[width=1.0\columnwidth]{fore-arm-single-bone.eps}}
+	\centerline{\includegraphics[width=1.0\columnwidth]{./figures/fore-arm-single-bone.eps}}
 	\centerline{(a)}
 	\centerline{\ }
-	\centerline{\includegraphics[width=1.0\columnwidth]{fore-arm-double-bone.eps}}
+	\centerline{\includegraphics[width=1.0\columnwidth]{./figures/fore-arm-double-bone.eps}}
 	\centerline{(b)}
 	\caption{Comparison of a -90$^\circ$ yaw rotation on the forearm with: (a) single and (b)~double-boned skinning.}
 	\label{fig:forearm-comparison}
@@ -645,7 +647,7 @@ Two sets of frame rates across the simulation can be seen in Figure~\ref{fig:fps
 
 \begin{figure}[htbp]
 	\begin{center} 
-	\fbox{\includegraphics[width=0.98\textwidth]{fps.eps}}
+	\fbox{\includegraphics[width=0.98\textwidth]{./figures/fps.eps}}
 	\end{center}
 	\caption{The frame rates for two different apparel meshes. }
 	\label{fig:fps}
@@ -655,7 +657,7 @@ The filters on the legs focus on solving the foot skating problem. The corrected
 
 \begin{figure}[htbp] 
 	\begin{center} 
-	\fbox{\includegraphics[width=0.98\textwidth]{footskate.eps}}
+	\fbox{\includegraphics[width=0.98\textwidth]{./figures/footskate.eps}}
 	\end{center}
 	\caption{The corrected displacement of feet. The local minima correspond to constrained foot changes and subsequent 
 	position smoothing. The zig zag regions correspond to time intervals where the user performing body yaw motion where 
@@ -703,11 +705,11 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 \doublespacing
 
 For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, 
-unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}.
+unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}. 
 
 \begin{figure}[htbp]
 	\begin{center} 
-			\includegraphics[width=1.00\textwidth]{scshot.eps}
+			\includegraphics[width=1.00\textwidth]{./figures/scshot.eps}
 	\end{center}
 	\caption{An example depth map data and the corresponding posture of the subject with a virtual cloth on it.}
 	\label{fig:system}
@@ -715,26 +717,26 @@ unnatural intersections between the cloth and the avatar never take place, while
  
  \begin{figure}[htbp] 
 	\centerline{
-	\includegraphics[width=0.250\textwidth]{sundress1.eps}
-	\includegraphics[width=0.250\textwidth]{sundress2.eps}
-	\includegraphics[width=0.250\textwidth]{sundress3.eps}
-	\includegraphics[width=0.250\textwidth]{sundress4.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/sundress1.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/sundress2.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/sundress3.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/sundress4.eps}
 	}
 	\centerline{(a)}
 	\centerline{\ }
 	\centerline{
-	\includegraphics[width=0.250\textwidth]{jeans-1.eps}
-	\includegraphics[width=0.250\textwidth]{jeans-2.eps}
-	\includegraphics[width=0.250\textwidth]{jeans-3.eps}
-	\includegraphics[width=0.250\textwidth]{jeans-4.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/jeans-1.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/jeans-2.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/jeans-3.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/jeans-4.eps}
 	}
 	\centerline{(b)}
 	\centerline{\ }
 	\centerline{
-	\includegraphics[width=0.250\textwidth]{flightsuit-1.eps}
-	\includegraphics[width=0.250\textwidth]{flightsuit-2.eps}
-	\includegraphics[width=0.250\textwidth]{flightsuit-3.eps}
-	\includegraphics[width=0.250\textwidth]{flightsuit-4.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/flightsuit-1.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/flightsuit-2.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/flightsuit-3.eps}
+	\includegraphics[width=0.250\textwidth]{./figures/flightsuit-4.eps}
 	}
 	\centerline{(c)}
 	\caption{Examples of different garments on a model with different postures: (a) sun dress, (b) jeans and vest, and 
@@ -744,16 +746,16 @@ unnatural intersections between the cloth and the avatar never take place, while
 
 \begin{figure}[htbp] 
 	\centerline{
-	\includegraphics[width=0.333\textwidth]{sundress.eps}
-	\includegraphics[width=0.333\textwidth]{jeans.eps}
-	\includegraphics[width=0.333\textwidth]{flight.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/sundress.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/jeans.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/flight.eps}
 	}
 	\centerline{(a)}
 	\centerline{\ }
 	\centerline{
-	\includegraphics[width=0.333\textwidth]{shirt.eps}
-	\includegraphics[width=0.333\textwidth]{duster.eps}
-	\includegraphics[width=0.333\textwidth]{martial.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/shirt.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/duster.eps}
+	\includegraphics[width=0.333\textwidth]{./figures/martial.eps}
 	}
 	\centerline{(b)}
 	\caption{The designed apparel meshes for the male and female avatars.}
@@ -767,6 +769,8 @@ unnatural intersections between the cloth and the avatar never take place, while
 \label{sec:Conclusions}
 
 We propose a novel virtual fitting room using depth sensor data. The framework yields a realistic fitting experience with customized motion filters, body measurement and physical simulation. The proposed scaling method adjusts the avatar's body size parameters and determines a suitable apparel size, prepares the collision mesh and the physics simulation, within a total preprocessing time of one second. We apply real-time motion filters that prevent unnatural artifacts by smoothing the depth sensor data and estimate the locations of self-occluded body parts. Bone splitting is used to approximate the behavior of double bones in lower arms and legs for realistic animation and rendering of the body parts near the joints.
+
+The most important limitation of the framework is its insufficiency in customization. We expect to be able to get better input quality with the advancements in depth sensing technology, hence providing a more customized experience. Another limitation is the small simulation area, which limits the user from seeing the cloth while walking and during other motions. This limitation can be surprassed by introducing multiple calibrated sensors.  
 
 As a future work, we would like to improve the quality of the measurements by using data from an RGB sensor as well, because it provides additional valuable data. We would also like to increase the number of collision spheres for better collision detection.
  
@@ -897,6 +901,9 @@ H-Anim. Humanoid Animation Working Group. Available at \verb+http://www.h-anim.o
 
 \bibitem{Kavan2009}
 L. Kavan, S. Collins, and C. O'Sullivan. Automatic Linearization of Nonlinear Skinning. {\textit Proceedings of the Symposium on Interactive 3D Graphics and Games (I3D '09)}, pages 49-56, ACM, New York, NY, USA, 2009.
+
+\bibitem{Mohr2003}
+Mohr, Alex, and Michael Gleicher. "Building efficient, accurate character skins from examples." ACM Transactions on Graphics (TOG). Vol. 22. No. 3. ACM, 2003.
 
 \bibitem{Kovar2002}
 Kovar, Lucas, John Schreiner, and Michael Gleicher. "Footskate cleanup for motion capture editing." Proceedings of the 2002 ACM SIGGRAPH/Eurographics symposium on Computer animation. ACM, 2002.
