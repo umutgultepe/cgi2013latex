@@ -133,9 +133,7 @@ A key purpose of both virtual and real fitting rooms is giving the customer the 
 
 \section{The Proposed Approach}
 \label{sec:Overall}
- {\color{red}We expect the customized virtual avatars according to the user are going to have more significance in the near future in online interactions. For this purpose, in contrast with the previous work done in this area, our aim was to develop a system which would be able to measure the user's dimensions in real time rather than offline; use the measurements to simulate the apparels on a virtual avatar rather than the RGB image of the user. The results can be used anywhere from virtual fitting rooms in shopping malls to MMORPGs with realistic avatars.} 
- 
-The main objective of a virtual dressing room is giving the user the idea of how the apparel will look on him/her without actually trying it on. As in any simulation, the absolute reality is almost impossible to attain, although with garment simulation and depth sensing technologies, a substantial level of realism can be achieved.The flow diagram of our framework is given in Figure~\ref{fig:overall}. The core components of the framework are:
+The main objective of a virtual dressing room is giving the user the idea of how the apparel will look on him/her without actually trying it on. As in any simulation, the absolute reality is almost impossible to attain, although with garment simulation and depth sensing technologies, a substantial level of realism can be achieved. The flow diagram of our framework is given in Figure~\ref{fig:overall}. The core components of the framework are:
 
 \begin{itemize}
   \item 3D scene rendering and render cycle management, 
@@ -387,7 +385,7 @@ Short sleeves-Sleeveless & Torso height & Shoulder width \\
 
 The measurements are performed in the real-world space, rather than the projective space, because a real size estimation is crucial for determining the appropriate cloth size. The latter would be sufficient for simulation purposes, when there is no concern of real-life apparel fitting. After the acquisition of the required scaling parameters for the subject, the cloth and avatar should be scaled as a whole in three dimensions uniformly, in contrast to a segmented scaling. This decision is based on the scope of our work because it is a standard-sized apparel fitting application without extensive customization. 
 {\color{red}
-The clothes are resized based on the standard cloth sizes, from XS to XXL. Although there are various standardized cloth sizes through Europe, Asia, USA and the rest for the world, there is not a strict regulation; hence, the exact size ranges could be determined according to the specific company and apparel piece. We use a generic chart provided by a sports goods manufacturer \cite{SKINS2013}.
+The clothes are resized based on the standard cloth sizes, from XS to XXL. Although there are various standardized cloth sizes through Europe, Asia, USA and the rest for the world, there is not a strict regulation; hence, the exact size ranges could be determined according to the specific company and apparel piece. We use a generic chart provided by a sports goods manufacturer \cite{ReferenceToBeAdded}.
 }
 Following the measurements, the body height and shoulder width are estimated for cloth resizing as described below (cf. Algorithm~\ref{algo:sphere_fitting}):
 
@@ -666,31 +664,6 @@ The proposed depth map enhancement algorithm is implemented on the in-house deve
 
 Experiments are performed on a high-end PC with Intel i7-2600 and NVIDIA GeForce GTX560Ti. The total time for the measurement of body parameters and resizing the cloth does not exceed 1.005 seconds. Considering the time for acquiring 30 frames of input from the depth sensor is 1.0 second, it is safe to say that the measurement algorithm does not introduce any delays for a real time application because it needs to run only once at the beginning of the simulation. The actual simulation runs at 600 fps on $1920 \times 1080$ resolution. The body sizes are estimated with error rates less than 4\%, which is sufficient for the realism of the simulation and determining the appropriate apparel size. 
 
-
-{\color{red}
-The average depth map correction in units of millimeters can be seen in Figure \ref{fig:depth_graph}. The average correction over the time interval is found to be nine centimeters. Note that these correction values are collected over the user region, rather than the whole depth image. Nine centimeters, although high, is still expected with the patched holes and gaussian smoothing over the edges causing erosion. The variation is due to the user not being stable over time, causing different depth distributions. A pre-filtered and post-filtered image pair can be seen in Figure \ref{fig:depth_figure}. 
-
-\begin{figure}[htbp]
-{\color{red}
-	\begin{center} 
-	\fbox{\includegraphics[width=0.98\textwidth]{./figures/depth_graph.eps}}
-	\end{center}
-	\caption{The average depth map correction per frame over ten seconds. }
-	\label{fig:depth_graph}
-}
-\end{figure}
-
-\begin{figure}[htbp]
-{\color{red}
-	\begin{center} 
-	\includegraphics[width=1.0\textwidth]{./figures/depth_comparison.eps}
-	\end{center}
-	\caption{The effect of depth map filtering. Notice the smoothened user boundary in the right image. }
-	\label{fig:depth_figure}
-}
-\end{figure}
-}
-
 {\color{red}
 The frame rates for two simulations with different apparel meshes can be seen in Figure~\ref{fig:fps}. Notice the common pattern in both of the simulations. The first drop corresponds to the start of the animation of the avatar with the input from depth sensor. Until that point, the avatar is static, the motion filters do not run and the simulation runs at a higher speed. Approximately 600 fps is lost due to the motion filtering and skinning. The first cliff in the graph corresponds to the point where the physics simulation is stopped. The second cliff starts when the input from the depth sensor is stopped and the simulation is stagnant.  
 }
@@ -761,30 +734,7 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 
 \doublespacing
 
-For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}. {\color{red}Rendering details for the apparel and humanoid meshes can be seen in Table \ref{tbl:mesh_details}.}
-
-
-\begin{table}
-\begin{center}
-{\color{red}
-\begin{tabular}{|c|c|c|c|c|}
-\hline
- &  \multicolumn{2}{c|}{\textbf{Vertex Count}} &  \multicolumn{2}{c|}{\textbf{Triangle Count}} \\ \hline
- \textbf{Mesh}  & \textbf{Skinned} & \textbf{Simulated} & \textbf{Skinned} & \textbf{Simulated}  \\ \hline
- Female Body & 120382 & - & 234062 & - \\ \hline
- Male Body & 44262 & - & 88234 & - \\ \hline
- Duster & 3459 & 480 & 6660 & 840 \\ \hline
- Sundress & 1048 & 3096 & 1951 & 6054 \\ \hline
- Flight Suit & 21777 & - & 42938 & - \\ \hline
- Pants-Shirt & 25088 & - & 49464 & - \\ \hline
- Jeans-Vest & 6024 & - & 11930 & - \\ \hline
- Martial Suit & 5512 & 778 & 10968 & 1384 \\ \hline
-\end{tabular}
-}
-\end{center}
-{\color{red}\caption{Vertex and face counts of the used meshes. Skinned vertices and triangles are the ones animated with the linear blended skinning, simulated ones are handled by the physics engine.}}
-\label{tbl:mesh_details}
-\end{table} 
+For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}. 
 
 \begin{figure}[htbp]
 	\begin{center} 
@@ -850,7 +800,7 @@ For the collision spheres, the quality of the results can be assessed by the smo
 We propose a novel virtual fitting room using depth sensor data. The framework yields a realistic fitting experience with customized motion filters, body measurement and physical simulation. The proposed scaling method adjusts the avatar's body size parameters and determines a suitable apparel size, prepares the collision mesh and the physics simulation, within a total preprocessing time of one second. We apply real-time motion filters that prevent unnatural artifacts by smoothing the depth sensor data and estimate the locations of self-occluded body parts. Bone splitting is used to approximate the behavior of double bones in lower arms and legs for realistic animation and rendering of the body parts near the joints.
 
 {\color{red}
-The most important limitation of the framework is its insufficiency in customization. We expect to be able to get better input quality with the advancements in depth sensing technology, hence providing a more customized experience. Another limitation is the small simulation zone, which limits the user from seeing the cloth while walking and during other motions. This limitation can be surprassed by introducing multiple calibrated sensors.  
+The most important limitation of the framework is its insufficiency in customization. We expect to be able to get better input quality with the advancements in depth sensing technology, hence providing a more customized experience. Another limitation is the small simulation area, which limits the user from seeing the cloth while walking and during other motions. This limitation can be surprassed by introducing multiple calibrated sensors.  
 }
 
 As a future work, we would like to improve the quality of the measurements by using data from an RGB sensor as well, because it provides additional valuable data. We would also like to increase the number of collision spheres for better collision detection.
@@ -967,9 +917,6 @@ S. Raiten. Kinect -- Getting Started -- Become The Incredible Hulk. Available at
 \bibitem{Willis2012}
 B. Willis. Body Proportions in Art. \textit{Wunderland Web Design}, 2013.
 
-\bibitem{SKINS2013}
-Unique Sizing, SKINS International Trading AG. Available, \verb+http://www.skins.net/en-AU/why-skins/unique-sizing-guide.aspx+, Accessed at April 2013.
-
 \bibitem{Azimi2012}
 M. Azimi. Skeletal Joint Smoothing, White Paper, Microsoft Corp. Available at \verb+http://msdn.microsoft.com/en-us/library/jj131429.aspx+, Accessed at June 2013.
 
@@ -1014,7 +961,6 @@ I. Samejima, K. Maki, S. Kagami, M. Kouchi, and H. Mizoguchi. A Body Dimensions 
 \end{thebibliography}
 
 \end{document}
-
 
 
 
