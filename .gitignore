@@ -10,8 +10,15 @@
 /CGI2013.synctex.gz
 /template_CGIconf.synctex.gz.orig
 /CA.synctex.gz
+
 /CAD.aux
+
 /CAD.log
+
 /CAD.spl
+
 /CAD.pdf
+
 /CAD.synctex.gz
+
+*.pdf
