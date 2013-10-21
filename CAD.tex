@@ -537,7 +537,7 @@ During runtime, the filtered local rotation of the upper limb bones are separate
 \subsubsection{Handling the Foot Skating Problem}
 \label{section_foot_skating}
 The virtual model is animated by changing bone orientations and root bone position. If the orientations and root position are applied to the bones respectively, the feet of the character appear to be floating on the ground that deteriorates the realism. 
-This problem, known as footskating, is not limited to depth sensor applications. It shows up in motion-capture-based animation systems and solved in a reasonable way with approaches, such as Kovar~et~al.~\cite{Kovar2002} and Ikemoto et al.~\cite{Ikemoto2006}. However, these methods rely on some sort of preprocessing or supervised learning, which is not suitable for our system, as the motion is captured and applied im real time. Hence, a solution that does not require a training process is needed for such applications. Mankyu and Choi~\cite{Mankyu2013} propose a similar method that does not require training for real-time depth sensor applications. Their approach is adopted into our framework to overcome the footskating problem. However, it requires additional filters and constraints in order to be usable in our framework. It is assumed that one foot is always on the ground; otherwise, artifacts may occur, for example, if the user attempts jumping. The footskating handling algorithm consists of two parts: {\em constraint checking and adaptation} (cf.~Algorithm~\ref{algo:check_foot_constraints}) and {\em joint angle determination and application} (cf.~Algorithm~\ref{algo:foot_skating}). The whole   algorithm consists of the following four steps. 
+This problem, known as footskating, is not limited to depth sensor applications. It shows up in motion-capture-based animation systems and solved in a reasonable way with approaches, such as Kovar~et~al.~\cite{Kovar2002} and Ikemoto et al.~\cite{Ikemoto2006}. However, these methods rely on some sort of preprocessing or supervised learning, which is not suitable for our system, as the motion is captured and applied in real time. Hence, a solution that does not require a training process is needed for such applications. Mankyu and Choi~\cite{Mankyu2013} propose a similar method that does not require training for real-time depth sensor applications. Their approach is adopted into our framework to overcome the footskating problem, along with additional filters and constraints in order to conform with the nature of our system. It is assumed that one foot is always on the ground; otherwise, artifacts may occur, for example, if the user attempts jumping. The footskating handling algorithm consists of two parts: {\em constraint checking and adaptation} (cf.~Algorithm~\ref{algo:check_foot_constraints}) and {\em joint angle determination and application} (cf.~Algorithm~\ref{algo:foot_skating}). The whole   algorithm consists of the following four steps. 
 }
 
  
@@ -774,17 +774,13 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
   Our approach & 2.13  & 1.20   & 1.00 & Fixed \\ \hline 
   Giovanni et al.~\cite{Giovanni2012}  & 4.00  & 3.00  & 1.00 & None \\ \hline  
   Samejima et al.~\cite{Samejima2012}  & 6.72  & 4.68  & n/a & PCA \\ \hline
-\end{tabular}
+\end{tabular} 
 \end{center}  
 \caption{Performance comparison with \cite{Giovanni2012} and \cite{Samejima2012} regarding height measurements.}
 \label{tbl:performance_compare}
 \end{table}
 
 \doublespacing
-
-
-For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}. {\color{red}Rendering details for the apparel and humanoid meshes can be seen in Table \ref{tbl:mesh_details}.}
-
 
 \begin{table}
 \begin{center}
@@ -804,9 +800,12 @@ For the collision spheres, the quality of the results can be assessed by the smo
 \end{tabular}
 }
 \end{center}
-{\color{red}\caption{Vertex and face counts of the used meshes. Skinned vertices and triangles are the ones animated with the linear blended skinning, simulated ones are handled by the physics engine.}}
-\label{tbl:mesh_details}
+\caption{{\color{red}Vertex and face counts of the used meshes. Skinned vertices and triangles are the ones animated with the linear blended skinning, simulated ones are handled by the physics engine.}}
+\label{tbl:mesh_props}
 \end{table} 
+
+
+For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}. {\color{red}Rendering details for the apparel and humanoid meshes can be seen in Table \ref{tbl:mesh_props}.}
 
 \begin{figure}[htbp]
 	\begin{center} 
