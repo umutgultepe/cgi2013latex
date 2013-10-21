@@ -692,7 +692,7 @@ The average depth map correction in units of millimeters can be seen in Figure \
 }
 
 {\color{red}
-The frame rates for two simulations with different apparel meshes can be seen in Figure~\ref{fig:fps}. Notice the common pattern in both of the simulations. The first drop corresponds to the start of the animation of the avatar with the input from depth sensor. Until that point, the avatar is static, the motion filters do not run and the simulation runs at a higher speed. Approximately 600 fps is lost due to the motion filtering and skinning. The first cliff in the graph corresponds to the point where the physics simulation is stopped. The second cliff starts when the input from the depth sensor is stopped and the simulation is stagnant.  
+The frame rates for two simulations with different apparel meshes can be seen in Figure~\ref{fig:fps}. Notice the common pattern in both of the simulations. The first drop corresponds to the start of the animation of the avatar with the input from depth sensor. Until that point, the avatar is static, the motion filters do not run and the simulation runs at a higher speed. Approximately 600 fps is lost due to the motion filtering and skinning. The first cliff in the graph corresponds to the point where the physics simulation is stopped. The second cliff starts when the input from the depth sensor is stopped and the simulation is stagnant. The performance of the simulations in terms of complexity and frame rate is compared with the results of Meng et al.\cite{Meng2010} in Table \ref{tbl:fps_compare}, where the increase in simulation speed is visible, though the power of the workstation should be taken into account, as our machine is significantly more powerful. 
 }
 
 \begin{figure}[htbp]
@@ -704,6 +704,27 @@ The frame rates for two simulations with different apparel meshes can be seen in
 	\label{fig:fps}
 }
 \end{figure}
+
+
+\begin{table}
+\begin{center}
+{\color{red}
+\begin{tabular}{|l|c|c|c|c|} 
+
+\hline   
+						& \multicolumn{2}{c|}{\textbf{Results by Meng et al.\cite{Meng2010}}} & \multicolumn{2}{c|}{\textbf{Our Results}} \\ \hline
+  Physics Simulator		& \multicolumn{2}{c|}{\textbf{CPU}} & \multicolumn{2}{c|}{\textbf{GPU}} \\ \hline 
+  Clothing 				& Wava Blouse 	& Dressed 	& Martial Suit 	& Sundress 	\\ \hline
+  Number of Vertices 	& 2,398 		& 11,353	& 778			& 3,096		\\ \hline
+  Number of Triangles 	& 4,768 		& 22,162	& 1,384			& 6,054		\\ \hline
+  Frame Rate(Desktop) 	& 63,07 		& 48,77		& 1,111			& 268,3		\\ \hline
+  Time Step(ms) 		& 8.7  			& 8.7		& 8.33			& 8.3		\\ \hline
+\end{tabular}
+}
+\end{center}  
+\caption{{\color{red}Performance comparison with \cite{Meng2010} regarding complexity and simulation speed.}}
+\label{tbl:fps_compare}
+\end{table}
 
 
 {\color{red}
@@ -761,6 +782,7 @@ Table~\ref{tbl:body_results} presents the measurements of the body dimensions, a
 
 \doublespacing
 
+
 For the collision spheres, the quality of the results can be assessed by the smoothness of the collision simulation, as seen in Figure \ref{fig:system}. Throughout the simulation, unnatural intersections between the cloth and the avatar never take place, while the cloth appears to rest on the skin naturally, without space between the two meshes. Figure~\ref{fig:examples} shows examples of three garments on a model with different postures generated with our implementation. The six apparel meshes, three for female avatar and three for male avatar can be seen in Figure~\ref{fig:apparels}. {\color{red}Rendering details for the apparel and humanoid meshes can be seen in Table \ref{tbl:mesh_details}.}
 
 
@@ -771,14 +793,14 @@ For the collision spheres, the quality of the results can be assessed by the smo
 \hline
  &  \multicolumn{2}{c|}{\textbf{Vertex Count}} &  \multicolumn{2}{c|}{\textbf{Triangle Count}} \\ \hline
  \textbf{Mesh}  & \textbf{Skinned} & \textbf{Simulated} & \textbf{Skinned} & \textbf{Simulated}  \\ \hline
- Female Body & 120382 & - & 234062 & - \\ \hline
- Male Body & 44262 & - & 88234 & - \\ \hline
- Duster & 3459 & 480 & 6660 & 840 \\ \hline
- Sundress & 1048 & 3096 & 1951 & 6054 \\ \hline
- Flight Suit & 21777 & - & 42938 & - \\ \hline
- Pants-Shirt & 25088 & - & 49464 & - \\ \hline
- Jeans-Vest & 6024 & - & 11930 & - \\ \hline
- Martial Suit & 5512 & 778 & 10968 & 1384 \\ \hline
+ Female Body & 120,382 & - & 234,062 & - \\ \hline
+ Male Body & 44,262 & - & 88,234 & - \\ \hline
+ Duster & 3,459 & 480 & 6,660 & 840 \\ \hline
+ Sundress & 1,048 & 3096 & 1,951 & 6,054 \\ \hline
+ Flight Suit & 21,777 & - & 42,938 & - \\ \hline
+ Pants-Shirt & 25,088 & - & 49,464 & - \\ \hline
+ Jeans-Vest & 6,024 & - & 11,930 & - \\ \hline
+ Martial Suit & 5,512 & 778 & 10,968 & 1,384 \\ \hline
 \end{tabular}
 }
 \end{center}
